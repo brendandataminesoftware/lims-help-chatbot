@@ -2,10 +2,20 @@
 
 set -e
 
+# Load .env file if it exists
+if [ -f .env ]; then
+    export $(grep -v '^#' .env | xargs)
+fi
+
 # Check for required environment variables
 if [ -z "$OPENAI_API_KEY" ]; then
-    echo "Error: OPENAI_API_KEY environment variable is not set"
-    echo "Usage: OPENAI_API_KEY=your-key ./start.sh"
+    echo "Error: OPENAI_API_KEY is not set"
+    echo ""
+    echo "Option 1: Create a .env file:"
+    echo "  echo 'OPENAI_API_KEY=your-key' > .env"
+    echo ""
+    echo "Option 2: Set environment variable:"
+    echo "  OPENAI_API_KEY=your-key ./start.sh"
     exit 1
 fi
 
