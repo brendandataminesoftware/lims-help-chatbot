@@ -22,6 +22,9 @@ public class DocumentLoaderCommand {
     public String loadDocuments(
             @ShellOption(help = "Path to directory containing HTML files") String path) {
 
+        System.out.println("Clearing existing documents...");
+        documentService.clearDocuments();
+
         System.out.println("Loading documents from: " + path);
         System.out.println("This may take a while depending on the number and size of files...\n");
 
