@@ -31,7 +31,7 @@ services:
       - chatbot-data:/app/data
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - SPRING_AI_VECTORSTORE_CHROMA_URL=http://chromadb:8000
+      - CHROMA_URL=http://chromadb:8000
       - RAG_DATA_DIR=/app/data
       - SHELL_INTERACTIVE=false
     restart: unless-stopped
