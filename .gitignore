@@ -1,0 +1,21 @@
+# Build output
+target/
+
+# IDE
+.idea/
+*.iml
+
+# Logs
+*.log
+
+# Data directory
+data/
+
+# System prompt (user-specific)
+system-prompt.txt
+
+# Maven wrapper jar
+.mvn/wrapper/maven-wrapper.jar
+
+# Environment files
+.env

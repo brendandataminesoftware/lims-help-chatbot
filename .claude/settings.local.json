@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl:*)",
+      "Bash(./mvnw.cmd compile:*)",
+      "Bash(cmd /c \"mvnw.cmd compile -q\")",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)"
+    ]
+  }
+}

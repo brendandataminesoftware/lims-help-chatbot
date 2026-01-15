@@ -1,0 +1,10 @@
+target/
+*.log
+*.jar
+.git/
+.gitignore
+.idea/
+*.iml
+.mvn/wrapper/maven-wrapper.jar
+data/
+system-prompt.txt
