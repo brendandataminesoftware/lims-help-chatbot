@@ -111,16 +111,35 @@ public class DocumentService {
                 }
             }
 
-            // Single batch call to vector store for all documents
+            // Send documents to vector store in batches of 100
             if (!allDocuments.isEmpty()) {
-                log.info("Sending {} chunks to vector store in single batch...", allDocuments.size());
-                vectorStore.add(allDocuments);
+                final int BATCH_SIZE = 100;
 
-                // Register all documents after successful add
-                for (DocumentInfo docInfo : pendingDocInfos) {
-                    loadedDocuments.put(docInfo.getId(), docInfo);
+                log.info("Sending {} chunks to vector store in batches of {}...", allDocuments.size(), BATCH_SIZE);
+
+                // Safety: ensure pendingDocInfos aligns with allDocuments
+                int docInfoIndex = 0;
+
+                for (int start = 0; start < allDocuments.size(); start += BATCH_SIZE) {
+                    int end = Math.min(start + BATCH_SIZE, allDocuments.size());
+
+                    // Sub-list view; copy if your vectorStore implementation mutates the list
+                    List<?> batch = allDocuments.subList(start, end);
+
+                    log.info("Sending batch {}-{} ({} chunks)...", start, end - 1, batch.size());
+                    vectorStore.add(batch);
+
+                    // Register only the documents that correspond to this batch after successful add
+                    int batchDocInfoEnd = Math.min(docInfoIndex + (end - start), pendingDocInfos.size());
+                    for (int i = docInfoIndex; i < batchDocInfoEnd; i++) {
+                        DocumentInfo docInfo = pendingDocInfos.get(i);
+                        loadedDocuments.put(docInfo.getId(), docInfo);
+                    }
+                    docInfoIndex = batchDocInfoEnd;
                 }
-                log.info("Successfully added {} documents to vector store", pendingDocInfos.size());
+
+                log.info("Successfully added {} chunks to vector store (registered {} docs)",
+                        allDocuments.size(), Math.min(pendingDocInfos.size(), docInfoIndex));
             }
 
         } catch (IOException e) {
