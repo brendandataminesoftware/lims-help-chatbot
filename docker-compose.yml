@@ -11,6 +11,11 @@ services:
     environment:
       - IS_PERSISTENT=TRUE
       - ANONYMIZED_TELEMETRY=FALSE
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
   ollama:
@@ -31,11 +36,12 @@ services:
       - chatbot-data:/app/data
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - CHROMA_URL=http://chromadb:8000
+      - SPRING_AI_VECTORSTORE_CHROMA_URL=http://chromadb:8000
       - RAG_DATA_DIR=/app/data
       - SHELL_INTERACTIVE=false
     depends_on:
-      - chromadb
+      chromadb:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:
