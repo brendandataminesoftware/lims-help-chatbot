@@ -23,7 +23,7 @@ spring:
     vectorstore:
       chroma:
         client:
-          host: ${CHROMA_HOST:chromadb}
+          host: ${CHROMA_HOST:http://chromadb}
           port: ${CHROMA_PORT:8000}
         collection-name: documents
         initialize-schema: true

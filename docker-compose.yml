@@ -31,7 +31,7 @@ services:
       - chatbot-data:/app/data
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - CHROMA_HOST=chromadb
+      - CHROMA_HOST=http://chromadb
       - CHROMA_PORT=8000
       - RAG_DATA_DIR=/app/data
       - SHELL_INTERACTIVE=false
