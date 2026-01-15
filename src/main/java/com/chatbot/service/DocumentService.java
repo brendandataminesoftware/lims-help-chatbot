@@ -124,7 +124,7 @@ public class DocumentService {
                     int end = Math.min(start + BATCH_SIZE, allDocuments.size());
 
                     // Sub-list view; copy if your vectorStore implementation mutates the list
-                    List<?> batch = allDocuments.subList(start, end);
+                    List<Document> batch = allDocuments.subList(start, end);
 
                     log.info("Sending batch {}-{} ({} chunks)...", start, end - 1, batch.size());
                     vectorStore.add(batch);
