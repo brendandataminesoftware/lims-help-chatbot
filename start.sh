@@ -21,8 +21,12 @@ fi
 
 echo "Starting RAG Chatbot..."
 
+# Stop any existing containers
+docker-compose down
+
 # Build and start all services
-docker-compose up -d --build
+docker-compose build --no-cache
+docker-compose up -d
 
 echo ""
 echo "Services started successfully!"
