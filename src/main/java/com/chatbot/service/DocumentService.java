@@ -5,7 +5,9 @@ import com.chatbot.model.DocumentInfo;
 import com.chatbot.model.LoadResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.chroma.ChromaApi;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.ChromaVectorStore;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 
@@ -24,19 +26,34 @@ public class DocumentService {
     private static final Logger log = LoggerFactory.getLogger(DocumentService.class);
 
     private final VectorStore vectorStore;
+    private final ChromaApi api;
     private final HtmlParserService htmlParserService;
     private final RagConfig ragConfig;
     private final Map<String, DocumentInfo> loadedDocuments = new ConcurrentHashMap<>();
 
-    public DocumentService(VectorStore vectorStore, HtmlParserService htmlParserService, RagConfig ragConfig) {
+    public DocumentService(VectorStore vectorStore, HtmlParserService htmlParserService, RagConfig ragConfig, ChromaApi api) {
         this.vectorStore = vectorStore;
         this.htmlParserService = htmlParserService;
         this.ragConfig = ragConfig;
+        this.api = api;
+    }
+
+    public void wipeChromaCollection() {
+        try {
+            api.deleteCollection("documents");
+        } catch (Exception e) {
+            // Chroma server often wraps this as a 500 with that message
+            if (e.getMessage() != null && e.getMessage().contains("does not exist")) {
+                // already wiped
+                return;
+            }
+            throw e;
+        }
     }
 
     public LoadResult loadDocumentsFromDirectory(String directoryPath) {
         File directory = new File(directoryPath);
-
+        wipeChromaCollection();
         if (!directory.exists() || !directory.isDirectory()) {
             return LoadResult.builder()
                     .filesProcessed(0)
@@ -49,6 +66,7 @@ public class DocumentService {
         int filesProcessed = 0;
         int totalChunks = 0;
         int errors = 0;
+
 
         try (Stream<Path> paths = Files.walk(directory.toPath())) {
             List<Path> htmlFiles = paths
