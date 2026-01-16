@@ -11,7 +11,7 @@ public class RagConfig {
     private int chunkOverlap = 200;
     private int maxResults = 5;
     private String dataDir = "./data";
-    private String docsBaseUrl = "https://docs.dataminesoftware.com/";
+    private String docsBaseUrl = "https://docs.dataminesoftware.com/CCLAS-EL/Latest/";
 
     public int getChunkSize() {
         return chunkSize;
