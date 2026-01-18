@@ -5,17 +5,19 @@
 }
 
 :root {
-    --bg-primary: #343541;
-    --bg-secondary: #202123;
-    --bg-tertiary: #444654;
-    --text-primary: #ececf1;
-    --text-secondary: #8e8ea0;
-    --border-color: #4d4d4f;
-    --accent-color: #10a37f;
-    --accent-hover: #1a7f64;
-    --user-bubble: #343541;
-    --assistant-bubble: #444654;
+    /* Corporate Color Palette */
+    --bg-primary: #313030;
+    --bg-secondary: #252525;
+    --bg-tertiary: #3d3d3d;
+    --text-primary: #F3F3F3;
+    --text-secondary: #b0b0b0;
+    --border-color: #4a4a4a;
+    --accent-color: #608BA6;
+    --accent-hover: #4f7a94;
+    --user-bubble: #313030;
+    --assistant-bubble: #3d3d3d;
     --error-color: #ef4444;
+    --white: #FFFFFF;
 }
 
 body {
@@ -224,7 +226,7 @@ body {
     background-color: var(--accent-color);
     border: none;
     border-radius: 6px;
-    color: white;
+    color: var(--white);
     cursor: pointer;
     font-size: 14px;
     font-weight: 500;
@@ -322,12 +324,12 @@ body {
 
 .avatar.user {
     background-color: var(--accent-color);
-    color: white;
+    color: var(--white);
 }
 
 .avatar.assistant {
-    background-color: #8b5cf6;
-    color: white;
+    background-color: var(--accent-color);
+    color: var(--white);
 }
 
 .message-text {
@@ -439,7 +441,7 @@ body {
 
 .source-link:hover {
     background-color: var(--accent-color);
-    color: white;
+    color: var(--white);
 }
 
 /* Typing indicator */
@@ -537,7 +539,7 @@ body {
 }
 
 .send-btn svg {
-    color: white;
+    color: var(--white);
 }
 
 .disclaimer {
