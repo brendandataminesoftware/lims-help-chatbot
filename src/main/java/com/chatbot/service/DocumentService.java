@@ -41,7 +41,8 @@ public class DocumentService {
     }
 
     public void wipeChromaCollection(String collectionName) {
-        vectorStoreFactory.deleteCollection(collectionName);
+        // Recreate collection ensures it exists and is empty
+        vectorStoreFactory.recreateCollection(collectionName);
     }
 
     /**
