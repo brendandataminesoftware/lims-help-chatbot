@@ -49,7 +49,7 @@ public class DocumentService {
      * Get the base path for storing collection documents.
      */
     public Path getCollectionDocsPath(String collectionName) {
-        return Paths.get(ragConfig.getDataDir(), "collections", collectionName);
+        return Paths.get("docs", "collections", collectionName);
     }
 
     /**
