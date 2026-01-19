@@ -30,7 +30,21 @@ public class ChromaVectorStoreFactory {
 
     private ChromaVectorStore createVectorStore(String collectionName) {
         log.info("Creating vector store for collection: {}", collectionName);
-        ChromaVectorStore store = new ChromaVectorStore(embeddingModel, chromaApi, collectionName, true);
+
+        // Explicitly create the collection in ChromaDB first
+        try {
+            chromaApi.createCollection(new ChromaApi.CreateCollectionRequest(collectionName));
+            log.info("Created collection in ChromaDB: {}", collectionName);
+        } catch (Exception e) {
+            // Collection might already exist, which is fine
+            if (e.getMessage() != null && e.getMessage().contains("already exists")) {
+                log.debug("Collection {} already exists", collectionName);
+            } else {
+                log.warn("Error creating collection {}: {}", collectionName, e.getMessage());
+            }
+        }
+
+        ChromaVectorStore store = new ChromaVectorStore(embeddingModel, chromaApi, collectionName, false);
         return store;
     }
 
@@ -48,13 +62,14 @@ public class ChromaVectorStoreFactory {
      * Delete a collection if it exists, ignoring errors if it doesn't.
      */
     public void deleteCollection(String collectionName) {
+        // Always remove from cache first
+        vectorStores.remove(collectionName);
+
         try {
             chromaApi.deleteCollection(collectionName);
-            vectorStores.remove(collectionName);
             log.info("Deleted collection: {}", collectionName);
         } catch (Exception e) {
             if (e.getMessage() != null && e.getMessage().contains("does not exist")) {
-                vectorStores.remove(collectionName);
                 log.debug("Collection {} does not exist, nothing to delete", collectionName);
                 return;
             }
@@ -67,7 +82,14 @@ public class ChromaVectorStoreFactory {
      */
     public void recreateCollection(String collectionName) {
         log.info("Recreating collection: {}", collectionName);
+
+        // Remove from cache and delete from ChromaDB
         deleteCollection(collectionName);
-        ensureCollectionExists(collectionName);
+
+        // Create a fresh vector store instance which will create the collection
+        ChromaVectorStore store = createVectorStore(collectionName);
+        vectorStores.put(collectionName, store);
+
+        log.info("Collection {} recreated successfully", collectionName);
     }
 }
