@@ -2,11 +2,58 @@
 let chatHistory = [];
 let isLoading = false;
 let currentSystemPrompt = '';
+let currentCollection = '';
+
+// Get collection name from URL hash (e.g., /#my-collection)
+function getCollectionFromUrl() {
+    const hash = window.location.hash.slice(1); // Remove the '#'
+    return hash || null;
+}
+
+// Update the UI to show current collection
+function updateCollectionDisplay() {
+    const collection = getCollectionFromUrl();
+    currentCollection = collection;
+
+    const titleElement = document.querySelector('.welcome-message h1');
+    const headerElement = document.querySelector('.sidebar-header');
+
+    if (collection) {
+        document.title = `Datamine Help - ${collection}`;
+        if (titleElement) {
+            titleElement.textContent = `Datamine Help`;
+            const subtitleElement = document.querySelector('.welcome-message p');
+            if (subtitleElement) {
+                subtitleElement.textContent = `Collection: ${collection}`;
+            }
+        }
+        // Add collection indicator to sidebar if not exists
+        let collectionIndicator = document.getElementById('collection-indicator');
+        if (!collectionIndicator && headerElement) {
+            collectionIndicator = document.createElement('div');
+            collectionIndicator.id = 'collection-indicator';
+            collectionIndicator.style.cssText = 'padding: 8px 12px; font-size: 12px; color: var(--text-secondary); border-bottom: 1px solid var(--border-color);';
+            collectionIndicator.innerHTML = `<span style="color: var(--accent-color);">Collection:</span> ${collection}`;
+            headerElement.parentNode.insertBefore(collectionIndicator, headerElement.nextSibling);
+        } else if (collectionIndicator) {
+            collectionIndicator.innerHTML = `<span style="color: var(--accent-color);">Collection:</span> ${collection}`;
+        }
+    } else {
+        document.title = 'Datamine Help';
+    }
+}
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
+    updateCollectionDisplay();
     loadSystemPrompt();
     document.getElementById('message-input').focus();
+});
+
+// Handle URL hash changes
+window.addEventListener('hashchange', () => {
+    updateCollectionDisplay();
+    newChat(); // Start fresh chat when collection changes
 });
 
 // Auto-resize textarea
@@ -60,7 +107,8 @@ async function sendMessage() {
             body: JSON.stringify({
                 message: message,
                 history: chatHistory.slice(-10), // Last 10 messages for context
-                systemPrompt: currentSystemPrompt || null
+                systemPrompt: currentSystemPrompt || null,
+                collectionName: currentCollection || null
             })
         });
 
@@ -296,10 +344,15 @@ function scrollToBottom() {
 function newChat() {
     chatHistory = [];
     const container = document.getElementById('chat-container');
+    const collection = getCollectionFromUrl();
+    const subtitle = collection
+        ? `Collection: ${collection}`
+        : 'How can I help you today?';
+
     container.innerHTML = `
         <div class="welcome-message" id="welcome-message">
-            <h1>RAG Chatbot</h1>
-            <p>Ask questions about your documents.</p>
+            <h1>Datamine Help</h1>
+            <p>${subtitle}</p>
         </div>
     `;
     document.getElementById('message-input').focus();

@@ -1,13 +1,12 @@
 package com.chatbot.service;
 
+import com.chatbot.config.ChromaVectorStoreFactory;
 import com.chatbot.config.RagConfig;
 import com.chatbot.model.DocumentInfo;
 import com.chatbot.model.LoadResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ai.chroma.ChromaApi;
 import org.springframework.ai.document.Document;
-import org.springframework.ai.vectorstore.ChromaVectorStore;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 
@@ -26,34 +25,32 @@ public class DocumentService {
     private static final Logger log = LoggerFactory.getLogger(DocumentService.class);
 
     private final VectorStore vectorStore;
-    private final ChromaApi api;
+    private final ChromaVectorStoreFactory vectorStoreFactory;
     private final HtmlParserService htmlParserService;
     private final RagConfig ragConfig;
     private final Map<String, DocumentInfo> loadedDocuments = new ConcurrentHashMap<>();
 
-    public DocumentService(VectorStore vectorStore, HtmlParserService htmlParserService, RagConfig ragConfig, ChromaApi api) {
+    public DocumentService(VectorStore vectorStore, ChromaVectorStoreFactory vectorStoreFactory,
+                          HtmlParserService htmlParserService, RagConfig ragConfig) {
         this.vectorStore = vectorStore;
+        this.vectorStoreFactory = vectorStoreFactory;
         this.htmlParserService = htmlParserService;
         this.ragConfig = ragConfig;
-        this.api = api;
     }
 
-    public void wipeChromaCollection() {
-        try {
-            api.deleteCollection("documents");
-        } catch (Exception e) {
-            // Chroma server often wraps this as a 500 with that message
-            if (e.getMessage() != null && e.getMessage().contains("does not exist")) {
-                // already wiped
-                return;
-            }
-            throw e;
-        }
+    public void wipeChromaCollection(String collectionName) {
+        vectorStoreFactory.deleteCollection(collectionName);
     }
 
-    public LoadResult loadDocumentsFromDirectory(String directoryPath) {
+    public LoadResult loadDocumentsFromDirectory(String directoryPath, String collectionName) {
         File directory = new File(directoryPath);
-        wipeChromaCollection();
+
+        // Wipe the specific collection before loading
+        wipeChromaCollection(collectionName);
+
+        // Get vector store for this collection
+        VectorStore targetVectorStore = vectorStoreFactory.getVectorStore(collectionName);
+
         if (!directory.exists() || !directory.isDirectory()) {
             return LoadResult.builder()
                     .filesProcessed(0)
@@ -106,6 +103,7 @@ public class DocumentService {
                         metadata.put("chunk", i + 1);
                         metadata.put("totalChunks", chunks.size());
                         metadata.put("docId", docId);
+                        metadata.put("collection", collectionName);
 
                         allDocuments.add(new Document(chunks.get(i), metadata));
                     }
@@ -133,7 +131,8 @@ public class DocumentService {
             if (!allDocuments.isEmpty()) {
                 final int BATCH_SIZE = 100;
 
-                log.info("Sending {} chunks to vector store in batches of {}...", allDocuments.size(), BATCH_SIZE);
+                log.info("Sending {} chunks to collection '{}' in batches of {}...",
+                        allDocuments.size(), collectionName, BATCH_SIZE);
 
                 // Safety: ensure pendingDocInfos aligns with allDocuments
                 int docInfoIndex = 0;
@@ -145,7 +144,7 @@ public class DocumentService {
                     List<Document> batch = allDocuments.subList(start, end);
 
                     log.info("Sending batch {}-{} ({} chunks)...", start, end - 1, batch.size());
-                    vectorStore.add(batch);
+                    targetVectorStore.add(batch);
 
                     // Register only the documents that correspond to this batch after successful add
                     int batchDocInfoEnd = Math.min(docInfoIndex + (end - start), pendingDocInfos.size());
@@ -156,8 +155,8 @@ public class DocumentService {
                     docInfoIndex = batchDocInfoEnd;
                 }
 
-                log.info("Successfully added {} chunks to vector store (registered {} docs)",
-                        allDocuments.size(), Math.min(pendingDocInfos.size(), docInfoIndex));
+                log.info("Successfully added {} chunks to collection '{}' (registered {} docs)",
+                        allDocuments.size(), collectionName, Math.min(pendingDocInfos.size(), docInfoIndex));
             }
 
         } catch (IOException e) {
@@ -170,8 +169,8 @@ public class DocumentService {
                     .build();
         }
 
-        String message = String.format("Loaded %d files with %d chunks (%d errors)",
-                filesProcessed, totalChunks, errors);
+        String message = String.format("Loaded %d files with %d chunks into collection '%s' (%d errors)",
+                filesProcessed, totalChunks, collectionName, errors);
 
         return LoadResult.builder()
                 .filesProcessed(filesProcessed)

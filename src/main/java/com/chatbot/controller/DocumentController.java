@@ -90,7 +90,8 @@ public class DocumentController {
             );
         }
 
-        LoadResult result = documentService.loadDocumentsFromDirectory(request.path());
+        String collectionName = request.collectionName() != null ? request.collectionName() : "documents";
+        LoadResult result = documentService.loadDocumentsFromDirectory(request.path(), collectionName);
         return ResponseEntity.ok(result);
     }
 
@@ -120,5 +121,5 @@ public class DocumentController {
                 .body(resource);
     }
 
-    public record DirectoryRequest(String path) {}
+    public record DirectoryRequest(String path, String collectionName) {}
 }

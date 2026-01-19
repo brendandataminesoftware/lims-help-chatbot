@@ -1,5 +1,6 @@
 package com.chatbot.service;
 
+import com.chatbot.config.ChromaVectorStoreFactory;
 import com.chatbot.config.RagConfig;
 import com.chatbot.model.ChatRequest;
 import com.chatbot.model.ChatResponse;
@@ -25,9 +26,11 @@ import java.util.stream.Collectors;
 public class ChatService {
 
     private static final Logger log = LoggerFactory.getLogger(ChatService.class);
+    private static final String DEFAULT_COLLECTION = "documents";
 
     private final ChatClient.Builder chatClientBuilder;
     private final VectorStore vectorStore;
+    private final ChromaVectorStoreFactory vectorStoreFactory;
     private final RagConfig ragConfig;
 
     private static final String DEFAULT_SYSTEM_PROMPT = """
@@ -50,10 +53,19 @@ public class ChatService {
             %s
             """;
 
-    public ChatService(ChatClient.Builder chatClientBuilder, VectorStore vectorStore, RagConfig ragConfig) {
+    public ChatService(ChatClient.Builder chatClientBuilder, VectorStore vectorStore,
+                       ChromaVectorStoreFactory vectorStoreFactory, RagConfig ragConfig) {
         this.chatClientBuilder = chatClientBuilder;
         this.vectorStore = vectorStore;
+        this.vectorStoreFactory = vectorStoreFactory;
         this.ragConfig = ragConfig;
+    }
+
+    private VectorStore getVectorStore(String collectionName) {
+        if (collectionName == null || collectionName.isBlank()) {
+            return vectorStore; // Use default configured vector store
+        }
+        return vectorStoreFactory.getVectorStore(collectionName);
     }
 
     public String getDefaultSystemPrompt() {
@@ -68,8 +80,8 @@ public class ChatService {
     public ChatResponse chat(ChatRequest request) {
         long startTime = System.currentTimeMillis();
 
-        // Retrieve relevant documents
-        List<Document> relevantDocs = retrieveRelevantDocuments(request.getMessage());
+        // Retrieve relevant documents from the specified collection
+        List<Document> relevantDocs = retrieveRelevantDocuments(request.getMessage(), request.getCollectionName());
 
         // Build context from retrieved documents
         String context = buildContext(relevantDocs);
@@ -123,8 +135,8 @@ public class ChatService {
     }
 
     public Flux<String> chatStream(ChatRequest request) {
-        // Retrieve relevant documents
-        List<Document> relevantDocs = retrieveRelevantDocuments(request.getMessage());
+        // Retrieve relevant documents from the specified collection
+        List<Document> relevantDocs = retrieveRelevantDocuments(request.getMessage(), request.getCollectionName());
 
         // Build context from retrieved documents
         String context = buildContext(relevantDocs);
@@ -157,15 +169,18 @@ public class ChatService {
                 .content();
     }
 
-    private List<Document> retrieveRelevantDocuments(String query) {
+    private List<Document> retrieveRelevantDocuments(String query, String collectionName) {
         try {
+            VectorStore store = getVectorStore(collectionName);
             SearchRequest searchRequest = SearchRequest.query(query).withTopK(ragConfig.getMaxResults());
 
-            List<Document> results = vectorStore.similaritySearch(searchRequest);
-            log.debug("Retrieved {} relevant documents for query", results.size());
+            List<Document> results = store.similaritySearch(searchRequest);
+            log.debug("Retrieved {} relevant documents for query from collection '{}'",
+                    results.size(), collectionName != null ? collectionName : "default");
             return results;
         } catch (Exception e) {
-            log.warn("Error retrieving documents: {}. Proceeding without context.", e.getMessage());
+            log.warn("Error retrieving documents from collection '{}': {}. Proceeding without context.",
+                    collectionName, e.getMessage());
             return List.of();
         }
     }

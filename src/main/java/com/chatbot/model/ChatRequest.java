@@ -8,6 +8,7 @@ public class ChatRequest {
     private String message;
     private List<ChatMessage> history = new ArrayList<>();
     private String systemPrompt;
+    private String collectionName;
 
     public ChatRequest() {}
 
@@ -20,6 +21,13 @@ public class ChatRequest {
         this.message = message;
         this.history = history;
         this.systemPrompt = systemPrompt;
+    }
+
+    public ChatRequest(String message, List<ChatMessage> history, String systemPrompt, String collectionName) {
+        this.message = message;
+        this.history = history;
+        this.systemPrompt = systemPrompt;
+        this.collectionName = collectionName;
     }
 
     public String getMessage() {
@@ -44,6 +52,14 @@ public class ChatRequest {
 
     public void setSystemPrompt(String systemPrompt) {
         this.systemPrompt = systemPrompt;
+    }
+
+    public String getCollectionName() {
+        return collectionName;
+    }
+
+    public void setCollectionName(String collectionName) {
+        this.collectionName = collectionName;
     }
 
     public static class ChatMessage {
