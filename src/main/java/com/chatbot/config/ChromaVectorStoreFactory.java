@@ -31,20 +31,17 @@ public class ChromaVectorStoreFactory {
     private ChromaVectorStore createVectorStore(String collectionName) {
         log.info("Creating vector store for collection: {}", collectionName);
 
-        // Explicitly create the collection in ChromaDB first
+        // Create ChromaVectorStore with initializeSchema=true to let it handle collection creation
+        ChromaVectorStore store = new ChromaVectorStore(embeddingModel, chromaApi, collectionName, true);
+
+        // Call afterPropertiesSet to trigger collection initialization
         try {
-            chromaApi.createCollection(new ChromaApi.CreateCollectionRequest(collectionName));
-            log.info("Created collection in ChromaDB: {}", collectionName);
+            store.afterPropertiesSet();
+            log.info("Initialized vector store for collection: {}", collectionName);
         } catch (Exception e) {
-            // Collection might already exist, which is fine
-            if (e.getMessage() != null && e.getMessage().contains("already exists")) {
-                log.debug("Collection {} already exists", collectionName);
-            } else {
-                log.warn("Error creating collection {}: {}", collectionName, e.getMessage());
-            }
+            log.warn("Error during afterPropertiesSet for collection {}: {}", collectionName, e.getMessage());
         }
 
-        ChromaVectorStore store = new ChromaVectorStore(embeddingModel, chromaApi, collectionName, false);
         return store;
     }
 
