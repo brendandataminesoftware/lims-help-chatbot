@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,6 +44,42 @@ public class DocumentService {
         vectorStoreFactory.deleteCollection(collectionName);
     }
 
+    /**
+     * Get the base path for storing collection documents.
+     */
+    public Path getCollectionDocsPath(String collectionName) {
+        return Paths.get(ragConfig.getDataDir(), "collections", collectionName);
+    }
+
+    /**
+     * Clear and prepare the collection docs directory.
+     */
+    private void prepareCollectionDocsDirectory(String collectionName) throws IOException {
+        Path collectionPath = getCollectionDocsPath(collectionName);
+
+        // Delete existing directory if it exists
+        if (Files.exists(collectionPath)) {
+            try (Stream<Path> walk = Files.walk(collectionPath)) {
+                walk.sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
+            }
+        }
+
+        // Create fresh directory
+        Files.createDirectories(collectionPath);
+        log.info("Prepared collection docs directory: {}", collectionPath);
+    }
+
+    /**
+     * Copy an HTML file to the collection's served directory.
+     */
+    private void copyToCollectionDocs(Path sourceFile, String relativePath, String collectionName) throws IOException {
+        Path targetPath = getCollectionDocsPath(collectionName).resolve(relativePath);
+        Files.createDirectories(targetPath.getParent());
+        Files.copy(sourceFile, targetPath, StandardCopyOption.REPLACE_EXISTING);
+    }
+
     public LoadResult loadDocumentsFromDirectory(String directoryPath, String collectionName) {
         File directory = new File(directoryPath);
 
@@ -57,6 +95,19 @@ public class DocumentService {
                     .chunksCreated(0)
                     .errors(1)
                     .message("Directory does not exist: " + directoryPath)
+                    .build();
+        }
+
+        // Prepare the collection docs directory for serving
+        try {
+            prepareCollectionDocsDirectory(collectionName);
+        } catch (IOException e) {
+            log.error("Error preparing collection docs directory: {}", e.getMessage());
+            return LoadResult.builder()
+                    .filesProcessed(0)
+                    .chunksCreated(0)
+                    .errors(1)
+                    .message("Error preparing collection docs directory: " + e.getMessage())
                     .build();
         }
 
@@ -92,6 +143,13 @@ public class DocumentService {
 
                     // Calculate relative path from base directory for URL construction
                     String relativePath = directory.toPath().relativize(htmlFile).toString().replace("\\", "/");
+
+                    // Copy file to collection docs directory for serving
+                    try {
+                        copyToCollectionDocs(htmlFile, relativePath, collectionName);
+                    } catch (IOException e) {
+                        log.warn("Failed to copy file to collection docs: {}", e.getMessage());
+                    }
 
                     String docId = UUID.randomUUID().toString();
 

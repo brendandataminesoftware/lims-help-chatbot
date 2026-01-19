@@ -86,14 +86,17 @@ public class ChatService {
         // Build context from retrieved documents
         String context = buildContext(relevantDocs);
 
-        // Extract source references and build full URLs
-        String baseUrl = ragConfig.getDocsBaseUrl();
+        // Extract source references and build URLs pointing to locally served docs
+        String collectionName = request.getCollectionName();
+        String effectiveCollection = (collectionName != null && !collectionName.isBlank())
+                ? collectionName : DEFAULT_COLLECTION;
+
         List<String> sources = relevantDocs.stream()
                 .map(doc -> doc.getMetadata().get("source"))
                 .filter(source -> source != null)
                 .map(Object::toString)
                 .distinct()
-                .map(source -> baseUrl + source)
+                .map(source -> "/docs/" + effectiveCollection + "/" + source)
                 .collect(Collectors.toList());
 
         // Build messages list with history
