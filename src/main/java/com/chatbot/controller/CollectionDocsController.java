@@ -85,6 +85,8 @@ public class CollectionDocsController {
             contentType = MediaType.IMAGE_GIF_VALUE;
         } else if (fileName.endsWith(".svg")) {
             contentType = "image/svg+xml";
+        } else if (fileName.endsWith(".xml")) {
+            contentType = MediaType.APPLICATION_XML_VALUE;
         }
 
         return ResponseEntity.ok()
