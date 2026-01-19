@@ -73,12 +73,37 @@ public class DocumentService {
     }
 
     /**
-     * Copy an HTML file to the collection's served directory.
+     * Copy a file to the collection's served directory.
      */
     private void copyToCollectionDocs(Path sourceFile, String relativePath, String collectionName) throws IOException {
         Path targetPath = getCollectionDocsPath(collectionName).resolve(relativePath);
         Files.createDirectories(targetPath.getParent());
         Files.copy(sourceFile, targetPath, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    /**
+     * Copy all files from source directory to collection docs directory.
+     * This includes HTML, CSS, JS, images, and any other assets.
+     */
+    private void copyAllFilesToCollectionDocs(Path sourceDir, String collectionName) throws IOException {
+        Path targetDir = getCollectionDocsPath(collectionName);
+
+        try (Stream<Path> paths = Files.walk(sourceDir)) {
+            List<Path> allFiles = paths.filter(Files::isRegularFile).toList();
+
+            log.info("Copying {} files to collection docs directory...", allFiles.size());
+
+            for (Path file : allFiles) {
+                String relativePath = sourceDir.relativize(file).toString().replace("\\", "/");
+                try {
+                    copyToCollectionDocs(file, relativePath, collectionName);
+                } catch (IOException e) {
+                    log.warn("Failed to copy file {}: {}", relativePath, e.getMessage());
+                }
+            }
+
+            log.info("Finished copying files to {}", targetDir);
+        }
     }
 
     public LoadResult loadDocumentsFromDirectory(String directoryPath, String collectionName) {
@@ -110,6 +135,13 @@ public class DocumentService {
                     .errors(1)
                     .message("Error preparing collection docs directory: " + e.getMessage())
                     .build();
+        }
+
+        // Copy ALL files to collection docs directory (HTML, CSS, JS, images, etc.)
+        try {
+            copyAllFilesToCollectionDocs(directory.toPath(), collectionName);
+        } catch (IOException e) {
+            log.error("Error copying files to collection docs: {}", e.getMessage());
         }
 
         int filesProcessed = 0;
@@ -144,13 +176,6 @@ public class DocumentService {
 
                     // Calculate relative path from base directory for URL construction
                     String relativePath = directory.toPath().relativize(htmlFile).toString().replace("\\", "/");
-
-                    // Copy file to collection docs directory for serving
-                    try {
-                        copyToCollectionDocs(htmlFile, relativePath, collectionName);
-                    } catch (IOException e) {
-                        log.warn("Failed to copy file to collection docs: {}", e.getMessage());
-                    }
 
                     String docId = UUID.randomUUID().toString();
 
