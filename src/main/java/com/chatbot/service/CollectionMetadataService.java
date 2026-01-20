@@ -1,6 +1,7 @@
 package com.chatbot.service;
 
 import com.chatbot.config.RagConfig;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -28,6 +29,7 @@ public class CollectionMetadataService {
         this.ragConfig = ragConfig;
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class CollectionMetadata {
         private String title;
         private String logo;
