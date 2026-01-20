@@ -32,12 +32,11 @@ body {
 .site-header {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 16px;
-    padding: 12px 24px;
+    gap: 20px;
+    padding: 16px 32px;
     background-color: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
-    height: 60px;
+    height: 80px;
 }
 
 .header-logo-link {
@@ -46,19 +45,19 @@ body {
 }
 
 .header-logo {
-    height: 36px;
+    height: 48px;
     width: auto;
 }
 
 .header-title {
-    font-size: 18px;
+    font-size: 24px;
     font-weight: 500;
     color: var(--text-primary);
 }
 
 .app-container {
     display: flex;
-    height: calc(100vh - 60px);
+    height: calc(100vh - 80px);
 }
 
 /* Sidebar */
