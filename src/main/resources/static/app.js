@@ -379,9 +379,7 @@ function newChat() {
     chatHistory = [];
     const container = document.getElementById('chat-container');
     const collection = getCollectionFromUrl();
-    const subtitle = collection
-        ? `Collection: ${collection}`
-        : 'How can I help you today?';
+    const subtitle = 'How can I help you today?';
 
     container.innerHTML = `
         <div class="welcome-message" id="welcome-message">
