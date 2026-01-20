@@ -75,29 +75,33 @@ public class CollectionMetadataService {
     }
 
     public void setTitle(String collectionName, String title) {
-        metadata.computeIfAbsent(collectionName, k -> new CollectionMetadata()).setTitle(title);
-        saveMetadata();
+        Map<String, CollectionMetadata> current = loadMetadataFromFile();
+        current.computeIfAbsent(collectionName, k -> new CollectionMetadata()).setTitle(title);
+        saveMetadataToFile(current);
         log.info("Set title for collection '{}': {}", collectionName, title);
     }
 
     public void setLogo(String collectionName, String logo) {
-        metadata.computeIfAbsent(collectionName, k -> new CollectionMetadata()).setLogo(logo);
-        saveMetadata();
+        Map<String, CollectionMetadata> current = loadMetadataFromFile();
+        current.computeIfAbsent(collectionName, k -> new CollectionMetadata()).setLogo(logo);
+        saveMetadataToFile(current);
         log.info("Set logo for collection '{}': {}", collectionName, logo);
     }
 
     public void setAlias(String aliasName, String targetCollection) {
-        CollectionMetadata aliasMeta = metadata.computeIfAbsent(aliasName, k -> new CollectionMetadata());
+        Map<String, CollectionMetadata> current = loadMetadataFromFile();
+        CollectionMetadata aliasMeta = current.computeIfAbsent(aliasName, k -> new CollectionMetadata());
         aliasMeta.setAliasOf(targetCollection);
-        saveMetadata();
+        saveMetadataToFile(current);
         log.info("Set alias '{}' -> '{}'", aliasName, targetCollection);
     }
 
     public void removeAlias(String aliasName) {
-        CollectionMetadata meta = metadata.get(aliasName);
+        Map<String, CollectionMetadata> current = loadMetadataFromFile();
+        CollectionMetadata meta = current.get(aliasName);
         if (meta != null && meta.isAlias()) {
-            metadata.remove(aliasName);
-            saveMetadata();
+            current.remove(aliasName);
+            saveMetadataToFile(current);
             log.info("Removed alias '{}'", aliasName);
         }
     }
@@ -187,13 +191,15 @@ public class CollectionMetadataService {
         }
     }
 
-    private void saveMetadata() {
+    private void saveMetadataToFile(Map<String, CollectionMetadata> data) {
         Path path = getMetadataPath();
         try {
             // Ensure parent directory exists
-            Files.createDirectories(path.getParent());
+            if (path.getParent() != null) {
+                Files.createDirectories(path.getParent());
+            }
             objectMapper.writerWithDefaultPrettyPrinter()
-                    .writeValue(path.toFile(), metadata);
+                    .writeValue(path.toFile(), data);
         } catch (IOException e) {
             log.error("Failed to save collection metadata to {}: {}", path, e.getMessage());
         }
