@@ -144,7 +144,7 @@ function addMessage(role, content, sources = []) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${role}`;
 
-    const avatar = role === 'user' ? 'You' : 'AI';
+    const avatar = role === 'user' ? 'You' : 'Alfred';
     const avatarClass = role === 'user' ? 'user' : 'assistant';
 
     let sourcesHtml = '';
@@ -290,7 +290,7 @@ function showTypingIndicator() {
 
     messageDiv.innerHTML = `
         <div class="message-content">
-            <div class="avatar assistant">AI</div>
+            <div class="avatar assistant">Alfred</div>
             <div class="typing-indicator">
                 <span></span>
                 <span></span>
