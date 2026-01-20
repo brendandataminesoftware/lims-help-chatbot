@@ -115,7 +115,7 @@ public class CollectionMetadataService {
         CollectionMetadata meta = allMetadata.get(collectionName);
         if (meta != null && meta.isAlias()) {
             String target = meta.getAliasOf();
-            log.debug("Resolved alias '{}' -> '{}'", collectionName, target);
+            log.info("Resolved alias '{}' -> '{}'", collectionName, target);
             return target;
         }
         return collectionName;
@@ -162,15 +162,20 @@ public class CollectionMetadataService {
 
     private Map<String, CollectionMetadata> loadMetadataFromFile() {
         Path path = getMetadataPath();
+        log.info("Loading metadata from: {}", path.toAbsolutePath());
         if (Files.exists(path)) {
             try {
-                return objectMapper.readValue(
+                Map<String, CollectionMetadata> loaded = objectMapper.readValue(
                         path.toFile(),
                         new TypeReference<Map<String, CollectionMetadata>>() {}
                 );
+                log.info("Loaded {} collections from file: {}", loaded.size(), loaded.keySet());
+                return loaded;
             } catch (IOException e) {
-                log.warn("Failed to load collection metadata from {}: {}", path, e.getMessage());
+                log.error("Failed to load collection metadata from {}: {}", path, e.getMessage(), e);
             }
+        } else {
+            log.info("Metadata file does not exist: {}", path.toAbsolutePath());
         }
         return new ConcurrentHashMap<>();
     }
@@ -193,6 +198,7 @@ public class CollectionMetadataService {
 
     private void saveMetadataToFile(Map<String, CollectionMetadata> data) {
         Path path = getMetadataPath();
+        log.info("Saving {} collections to {}: {}", data.size(), path.toAbsolutePath(), data.keySet());
         try {
             // Ensure parent directory exists
             if (path.getParent() != null) {
@@ -200,8 +206,9 @@ public class CollectionMetadataService {
             }
             objectMapper.writerWithDefaultPrettyPrinter()
                     .writeValue(path.toFile(), data);
+            log.info("Successfully saved metadata to {}", path.toAbsolutePath());
         } catch (IOException e) {
-            log.error("Failed to save collection metadata to {}: {}", path, e.getMessage());
+            log.error("Failed to save collection metadata to {}: {}", path, e.getMessage(), e);
         }
     }
 }
