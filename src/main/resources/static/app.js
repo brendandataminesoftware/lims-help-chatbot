@@ -153,7 +153,8 @@ function addMessage(role, content, sources = []) {
             <div class="sources">
                 <div class="sources-label">Sources:</div>
                 ${sources.map(s => {
-                    return `<a href="${escapeHtml(s.url)}" target="_blank" class="source-link">${escapeHtml(s.title)}</a>`;
+                    const relevance = Math.round(s.score * 100);
+                    return `<a href="${escapeHtml(s.url)}" target="_blank" class="source-link">${escapeHtml(s.title)} <span class="relevance">(${relevance}%)</span></a>`;
                 }).join('')}
             </div>
         `;

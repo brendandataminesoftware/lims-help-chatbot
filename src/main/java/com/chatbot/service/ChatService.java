@@ -100,12 +100,19 @@ public class ChatService {
                             String sourceFile = doc.getMetadata().get("source").toString();
                             String title = doc.getMetadata().getOrDefault("title", sourceFile).toString();
                             String url = "/docs/" + effectiveCollection + "/" + sourceFile;
-                            return new Source(url, title);
+                            // Distance is stored in metadata; convert to similarity score (1 - distance)
+                            Object distanceObj = doc.getMetadata().get("distance");
+                            double score = 0.0;
+                            if (distanceObj instanceof Number) {
+                                score = 1.0 - ((Number) distanceObj).doubleValue();
+                            }
+                            return new Source(url, title, score);
                         },
-                        (existing, replacement) -> existing
+                        (existing, replacement) -> existing.getScore() >= replacement.getScore() ? existing : replacement
                 ))
                 .values()
                 .stream()
+                .sorted((a, b) -> Double.compare(b.getScore(), a.getScore()))
                 .collect(Collectors.toList());
 
         // Build messages list with history
