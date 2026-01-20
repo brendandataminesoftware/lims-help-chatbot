@@ -69,17 +69,32 @@ public class CollectionMetadataService {
     }
 
     public String getTitle(String collectionName) {
-        CollectionMetadata meta = metadata.get(collectionName);
+        CollectionMetadata meta = loadMetadataFromFile().get(collectionName);
         return meta != null ? meta.getTitle() : null;
     }
 
     public String getLogo(String collectionName) {
-        CollectionMetadata meta = metadata.get(collectionName);
+        CollectionMetadata meta = loadMetadataFromFile().get(collectionName);
         return meta != null ? meta.getLogo() : null;
     }
 
     public CollectionMetadata getMetadata(String collectionName) {
-        return metadata.get(collectionName);
+        return loadMetadataFromFile().get(collectionName);
+    }
+
+    private Map<String, CollectionMetadata> loadMetadataFromFile() {
+        Path path = Paths.get(METADATA_FILE);
+        if (Files.exists(path)) {
+            try {
+                return objectMapper.readValue(
+                        path.toFile(),
+                        new TypeReference<Map<String, CollectionMetadata>>() {}
+                );
+            } catch (IOException e) {
+                log.warn("Failed to load collection metadata: {}", e.getMessage());
+            }
+        }
+        return new ConcurrentHashMap<>();
     }
 
     private void loadMetadata() {
