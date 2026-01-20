@@ -1,5 +1,6 @@
 package com.chatbot.controller;
 
+import com.chatbot.service.CollectionMetadataService;
 import com.chatbot.service.DocumentService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -27,9 +28,11 @@ public class CollectionDocsController {
     private static final Logger log = LoggerFactory.getLogger(CollectionDocsController.class);
 
     private final DocumentService documentService;
+    private final CollectionMetadataService collectionMetadataService;
 
-    public CollectionDocsController(DocumentService documentService) {
+    public CollectionDocsController(DocumentService documentService, CollectionMetadataService collectionMetadataService) {
         this.documentService = documentService;
+        this.collectionMetadataService = collectionMetadataService;
     }
 
     /**
@@ -53,8 +56,11 @@ public class CollectionDocsController {
         String filePath = requestUri.substring(prefixIndex + prefix.length());
         filePath = URLDecoder.decode(filePath, StandardCharsets.UTF_8);
 
+        // Resolve collection alias if applicable
+        String resolvedCollection = collectionMetadataService.resolveCollection(collectionName);
+
         // Get the collection docs path
-        Path collectionDocsPath = documentService.getCollectionDocsPath(collectionName);
+        Path collectionDocsPath = documentService.getCollectionDocsPath(resolvedCollection);
         Path targetFile = collectionDocsPath.resolve(filePath).normalize();
 
         // Security check: ensure the resolved path is within the collection directory
