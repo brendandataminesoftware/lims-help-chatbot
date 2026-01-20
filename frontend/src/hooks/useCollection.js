@@ -10,15 +10,19 @@ function getCollectionFromUrl() {
 
 export function useCollection() {
     const [urlCollection, setUrlCollection] = useState(getCollectionFromUrl);
-    const [resolvedCollection, setResolvedCollection] = useState(null);
+    const [resolvedCollection, setResolvedCollection] = useState(getCollectionFromUrl);
+    const [isLoading, setIsLoading] = useState(true);
     const [title, setTitle] = useState('Product Documentation');
     const [logo, setLogo] = useState(DEFAULT_LOGO);
 
     const loadMetadata = useCallback(async (collectionName) => {
+        setIsLoading(true);
         const metadata = await fetchCollectionMetadata(collectionName);
+        console.log('Collection metadata loaded:', { collectionName, metadata });
         setTitle(metadata.title);
         setLogo(metadata.logo);
         setResolvedCollection(metadata.resolvedCollection);
+        setIsLoading(false);
 
         // Update document title
         if (collectionName) {
@@ -29,12 +33,16 @@ export function useCollection() {
     }, []);
 
     useEffect(() => {
+        // Reset resolved collection to URL collection immediately, then load actual resolved value
+        setResolvedCollection(urlCollection);
         loadMetadata(urlCollection);
     }, [urlCollection, loadMetadata]);
 
     useEffect(() => {
         const handleHashChange = () => {
-            setUrlCollection(getCollectionFromUrl());
+            const newCollection = getCollectionFromUrl();
+            setUrlCollection(newCollection);
+            setResolvedCollection(newCollection); // Reset immediately on hash change
         };
 
         window.addEventListener('hashchange', handleHashChange);
@@ -44,6 +52,7 @@ export function useCollection() {
     return {
         urlCollection,
         resolvedCollection,
+        isLoading,
         title,
         logo
     };

@@ -20,6 +20,7 @@ export function useChat(resolvedCollection, systemPrompt) {
                 content: m.content
             }));
 
+            console.log('Sending chat message with collection:', resolvedCollection);
             const data = await sendChatMessage(
                 content,
                 history,
