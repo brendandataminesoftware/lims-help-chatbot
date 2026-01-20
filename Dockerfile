@@ -1,11 +1,30 @@
 # Build stage
 FROM eclipse-temurin:21-jdk as builder
 WORKDIR /app
+
+# Copy Maven wrapper and pom.xml first (changes rarely)
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
-RUN ./mvnw dependency:go-offline -B
+
+# Copy frontend package files for npm dependency caching
+COPY frontend/package.json frontend/package-lock.json ./frontend/
+
+# Download all dependencies (Maven + Node + npm) - cached unless pom.xml or package.json changes
+RUN --mount=type=cache,target=/root/.m2/repository \
+    --mount=type=cache,target=/app/target/node \
+    --mount=type=cache,target=/app/frontend/node_modules \
+    ./mvnw dependency:go-offline frontend:install-node-and-npm frontend:npm@npm-install -B
+
+# Copy frontend source (changes more often than dependencies)
+COPY frontend/ ./frontend/
+
+# Copy Java source
 COPY src ./src
-RUN ./mvnw package -DskipTests -B
+
+# Build the application (uses cached dependencies)
+RUN --mount=type=cache,target=/root/.m2/repository \
+    --mount=type=cache,target=/app/target/node \
+    ./mvnw package -DskipTests -B
 
 # Runtime stage
 FROM eclipse-temurin:21-jre
