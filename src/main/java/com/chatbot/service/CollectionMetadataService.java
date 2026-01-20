@@ -31,6 +31,7 @@ public class CollectionMetadataService {
     public static class CollectionMetadata {
         private String title;
         private String logo;
+        private String aliasOf;
 
         public CollectionMetadata() {}
 
@@ -54,6 +55,18 @@ public class CollectionMetadataService {
         public void setLogo(String logo) {
             this.logo = logo;
         }
+
+        public String getAliasOf() {
+            return aliasOf;
+        }
+
+        public void setAliasOf(String aliasOf) {
+            this.aliasOf = aliasOf;
+        }
+
+        public boolean isAlias() {
+            return aliasOf != null && !aliasOf.isBlank();
+        }
     }
 
     @PostConstruct
@@ -73,13 +86,65 @@ public class CollectionMetadataService {
         log.info("Set logo for collection '{}': {}", collectionName, logo);
     }
 
+    public void setAlias(String aliasName, String targetCollection) {
+        CollectionMetadata aliasMeta = metadata.computeIfAbsent(aliasName, k -> new CollectionMetadata());
+        aliasMeta.setAliasOf(targetCollection);
+        saveMetadata();
+        log.info("Set alias '{}' -> '{}'", aliasName, targetCollection);
+    }
+
+    public void removeAlias(String aliasName) {
+        CollectionMetadata meta = metadata.get(aliasName);
+        if (meta != null && meta.isAlias()) {
+            metadata.remove(aliasName);
+            saveMetadata();
+            log.info("Removed alias '{}'", aliasName);
+        }
+    }
+
+    /**
+     * Resolves a collection name, following aliases if present.
+     * Returns the actual collection name to use.
+     */
+    public String resolveCollection(String collectionName) {
+        Map<String, CollectionMetadata> allMetadata = loadMetadataFromFile();
+        CollectionMetadata meta = allMetadata.get(collectionName);
+        if (meta != null && meta.isAlias()) {
+            String target = meta.getAliasOf();
+            log.debug("Resolved alias '{}' -> '{}'", collectionName, target);
+            return target;
+        }
+        return collectionName;
+    }
+
+    /**
+     * Gets the alias target if the collection is an alias, null otherwise.
+     */
+    public String getAliasOf(String collectionName) {
+        Map<String, CollectionMetadata> allMetadata = loadMetadataFromFile();
+        CollectionMetadata meta = allMetadata.get(collectionName);
+        return meta != null ? meta.getAliasOf() : null;
+    }
+
     public String getTitle(String collectionName) {
-        CollectionMetadata meta = loadMetadataFromFile().get(collectionName);
+        Map<String, CollectionMetadata> allMetadata = loadMetadataFromFile();
+        CollectionMetadata meta = allMetadata.get(collectionName);
+        // If it's an alias, get the title from the target collection
+        if (meta != null && meta.isAlias()) {
+            CollectionMetadata targetMeta = allMetadata.get(meta.getAliasOf());
+            return targetMeta != null ? targetMeta.getTitle() : null;
+        }
         return meta != null ? meta.getTitle() : null;
     }
 
     public String getLogo(String collectionName) {
-        CollectionMetadata meta = loadMetadataFromFile().get(collectionName);
+        Map<String, CollectionMetadata> allMetadata = loadMetadataFromFile();
+        CollectionMetadata meta = allMetadata.get(collectionName);
+        // If it's an alias, get the logo from the target collection
+        if (meta != null && meta.isAlias()) {
+            CollectionMetadata targetMeta = allMetadata.get(meta.getAliasOf());
+            return targetMeta != null ? targetMeta.getLogo() : null;
+        }
         return meta != null ? meta.getLogo() : null;
     }
 

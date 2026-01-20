@@ -22,6 +22,11 @@ public class CollectionController {
         Map<String, Object> response = new HashMap<>();
         response.put("collectionName", collectionName);
 
+        // Check if this is an alias and resolve it
+        String resolvedCollection = collectionMetadataService.resolveCollection(collectionName);
+        response.put("resolvedCollection", resolvedCollection);
+        response.put("isAlias", !collectionName.equals(resolvedCollection));
+
         String title = collectionMetadataService.getTitle(collectionName);
         response.put("title", title);
 

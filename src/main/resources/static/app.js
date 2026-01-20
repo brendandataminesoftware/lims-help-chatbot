@@ -13,11 +13,12 @@ function getCollectionFromUrl() {
 const DEFAULT_LOGO = 'https://docs.dataminesoftware.com/Assets/Images/Datamine-Logo.png';
 
 // Load collection metadata and update header
+// Returns the resolved collection name (handles aliases)
 async function loadCollectionMetadata(collectionName) {
     if (!collectionName) {
         document.getElementById('header-title').textContent = 'Product Documentation';
         document.getElementById('header-logo').src = DEFAULT_LOGO;
-        return;
+        return null;
     }
 
     try {
@@ -34,22 +35,26 @@ async function loadCollectionMetadata(collectionName) {
             } else {
                 document.getElementById('header-logo').src = DEFAULT_LOGO;
             }
+            // Return the resolved collection name (for alias support)
+            return data.resolvedCollection || collectionName;
         }
     } catch (error) {
         console.error('Error loading collection metadata:', error);
     }
+    return collectionName;
 }
 
 // Update the UI to show current collection
-function updateCollectionDisplay() {
+async function updateCollectionDisplay() {
     const collection = getCollectionFromUrl();
-    currentCollection = collection;
 
     const titleElement = document.querySelector('.welcome-message h1');
     const headerElement = document.querySelector('.sidebar-header');
 
-    // Load collection metadata to update header title
-    loadCollectionMetadata(collection);
+    // Load collection metadata and get resolved collection name (handles aliases)
+    const resolvedCollection = await loadCollectionMetadata(collection);
+    // Use the resolved collection name for API calls
+    currentCollection = resolvedCollection;
 
     if (collection) {
         document.title = `Datamine Help - ${collection}`;
@@ -378,7 +383,6 @@ function scrollToBottom() {
 function newChat() {
     chatHistory = [];
     const container = document.getElementById('chat-container');
-    const collection = getCollectionFromUrl();
     const subtitle = 'How can I help you today?';
 
     container.innerHTML = `

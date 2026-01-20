@@ -249,6 +249,21 @@ public class DocumentLoaderCommand {
         return String.format("Logo set for collection '%s': %s", collectionName, logo);
     }
 
+    @ShellMethod(key = "set-alias", value = "Create an alias that points to another collection")
+    public String setAlias(
+            @ShellOption(help = "Name of the alias (e.g., cclas-latest)") String aliasName,
+            @ShellOption(help = "Target collection name (e.g., cclas-2025-r2)") String targetCollection) {
+        collectionMetadataService.setAlias(aliasName, targetCollection);
+        return String.format("Alias set: '%s' -> '%s'", aliasName, targetCollection);
+    }
+
+    @ShellMethod(key = "remove-alias", value = "Remove a collection alias")
+    public String removeAlias(
+            @ShellOption(help = "Name of the alias to remove") String aliasName) {
+        collectionMetadataService.removeAlias(aliasName);
+        return String.format("Alias '%s' removed", aliasName);
+    }
+
     @ShellMethod(key = "clear-docs", value = "Clear the document registry")
     public String clearDocuments() {
         documentService.clearDocuments();
@@ -279,6 +294,13 @@ public class DocumentLoaderCommand {
                 set-logo <collection> <logo-url>
                     Set the logo image URL for a collection's frontend header.
 
+                set-alias <alias> <target-collection>
+                    Create an alias that points to another collection.
+                    Useful for creating "latest" or "stable" aliases.
+
+                remove-alias <alias>
+                    Remove a collection alias.
+
                 list-docs
                     List all loaded documents with chunk counts.
 
@@ -292,6 +314,8 @@ public class DocumentLoaderCommand {
                   load-docs-url https://example.com/docs.zip product-docs --title "Product Docs"
                   set-title my-collection "My Product Documentation"
                   set-logo my-collection "https://example.com/logo.png"
+                  set-alias cclas-latest cclas-2025-r2
+                  remove-alias cclas-latest
 
                 After loading documents, open http://localhost:8080 in your browser
                 to chat with the AI about your documents.
