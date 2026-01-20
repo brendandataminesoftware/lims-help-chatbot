@@ -148,11 +148,13 @@ function addMessage(role, content, sources = []) {
     const avatarClass = role === 'user' ? 'user' : 'assistant';
 
     let sourcesHtml = '';
-    if (sources && sources.length > 0) {
+    const minRelevance = 0.8; // Minimum 30% relevance to show source
+    const filteredSources = sources ? sources.filter(s => s.score >= minRelevance) : [];
+    if (filteredSources.length > 0) {
         sourcesHtml = `
             <div class="sources">
                 <div class="sources-label">Sources:</div>
-                ${sources.map(s => {
+                ${filteredSources.map(s => {
                     const relevance = Math.round(s.score * 100);
                     return `<a href="${escapeHtml(s.url)}" target="_blank" class="source-link">${escapeHtml(s.title)} <span class="relevance">(${relevance}%)</span></a>`;
                 }).join('')}
