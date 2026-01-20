@@ -5,12 +5,12 @@ import java.util.List;
 public class ChatResponse {
 
     private String message;
-    private List<String> sources;
+    private List<Source> sources;
     private long processingTimeMs;
 
     public ChatResponse() {}
 
-    public ChatResponse(String message, List<String> sources, long processingTimeMs) {
+    public ChatResponse(String message, List<Source> sources, long processingTimeMs) {
         this.message = message;
         this.sources = sources;
         this.processingTimeMs = processingTimeMs;
@@ -24,11 +24,11 @@ public class ChatResponse {
         this.message = message;
     }
 
-    public List<String> getSources() {
+    public List<Source> getSources() {
         return sources;
     }
 
-    public void setSources(List<String> sources) {
+    public void setSources(List<Source> sources) {
         this.sources = sources;
     }
 
@@ -46,7 +46,7 @@ public class ChatResponse {
 
     public static class Builder {
         private String message;
-        private List<String> sources;
+        private List<Source> sources;
         private long processingTimeMs;
 
         public Builder message(String message) {
@@ -54,7 +54,7 @@ public class ChatResponse {
             return this;
         }
 
-        public Builder sources(List<String> sources) {
+        public Builder sources(List<Source> sources) {
             this.sources = sources;
             return this;
         }

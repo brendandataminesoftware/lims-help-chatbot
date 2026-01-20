@@ -4,6 +4,7 @@ import com.chatbot.config.ChromaVectorStoreFactory;
 import com.chatbot.config.RagConfig;
 import com.chatbot.model.ChatRequest;
 import com.chatbot.model.ChatResponse;
+import com.chatbot.model.Source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -91,12 +92,20 @@ public class ChatService {
         String effectiveCollection = (collectionName != null && !collectionName.isBlank())
                 ? collectionName : DEFAULT_COLLECTION;
 
-        List<String> sources = relevantDocs.stream()
-                .map(doc -> doc.getMetadata().get("source"))
-                .filter(source -> source != null)
-                .map(Object::toString)
-                .distinct()
-                .map(source -> "/docs/" + effectiveCollection + "/" + source)
+        List<Source> sources = relevantDocs.stream()
+                .filter(doc -> doc.getMetadata().get("source") != null)
+                .collect(Collectors.toMap(
+                        doc -> doc.getMetadata().get("source").toString(),
+                        doc -> {
+                            String sourceFile = doc.getMetadata().get("source").toString();
+                            String title = doc.getMetadata().getOrDefault("title", sourceFile).toString();
+                            String url = "/docs/" + effectiveCollection + "/" + sourceFile;
+                            return new Source(url, title);
+                        },
+                        (existing, replacement) -> existing
+                ))
+                .values()
+                .stream()
                 .collect(Collectors.toList());
 
         // Build messages list with history

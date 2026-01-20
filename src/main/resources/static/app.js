@@ -153,9 +153,7 @@ function addMessage(role, content, sources = []) {
             <div class="sources">
                 <div class="sources-label">Sources:</div>
                 ${sources.map(s => {
-                    // Extract filename from URL for display
-                    const displayName = s.split('/').pop() || s;
-                    return `<a href="${escapeHtml(s)}" target="_blank" class="source-link">${escapeHtml(displayName)}</a>`;
+                    return `<a href="${escapeHtml(s.url)}" target="_blank" class="source-link">${escapeHtml(s.title)}</a>`;
                 }).join('')}
             </div>
         `;
