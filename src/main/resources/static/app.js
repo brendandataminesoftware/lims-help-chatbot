@@ -10,10 +10,13 @@ function getCollectionFromUrl() {
     return hash || null;
 }
 
+const DEFAULT_LOGO = 'https://docs.dataminesoftware.com/Assets/Images/Datamine-Logo.png';
+
 // Load collection metadata and update header
 async function loadCollectionMetadata(collectionName) {
     if (!collectionName) {
         document.getElementById('header-title').textContent = 'Product Documentation';
+        document.getElementById('header-logo').src = DEFAULT_LOGO;
         return;
     }
 
@@ -25,6 +28,11 @@ async function loadCollectionMetadata(collectionName) {
                 document.getElementById('header-title').textContent = data.title;
             } else {
                 document.getElementById('header-title').textContent = 'Product Documentation';
+            }
+            if (data.logo) {
+                document.getElementById('header-logo').src = data.logo;
+            } else {
+                document.getElementById('header-logo').src = DEFAULT_LOGO;
             }
         }
     } catch (error) {

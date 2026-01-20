@@ -38,7 +38,8 @@ public class DocumentLoaderCommand {
     public String loadDocuments(
             @ShellOption(help = "Path to directory containing HTML files") String path,
             @ShellOption(help = "Name of the ChromaDB collection to store documents") String collectionName,
-            @ShellOption(help = "Display title for this collection", defaultValue = ShellOption.NULL) String title) {
+            @ShellOption(help = "Display title for this collection", defaultValue = ShellOption.NULL) String title,
+            @ShellOption(help = "URL path to logo image for this collection", defaultValue = ShellOption.NULL) String logo) {
 
         System.out.println("Clearing existing documents...");
         documentService.clearDocuments();
@@ -49,6 +50,10 @@ public class DocumentLoaderCommand {
             System.out.println("Collection title: " + title);
             collectionMetadataService.setTitle(collectionName, title);
         }
+        if (logo != null) {
+            System.out.println("Collection logo: " + logo);
+            collectionMetadataService.setLogo(collectionName, logo);
+        }
         System.out.println("This may take a while depending on the number and size of files...\n");
 
         LoadResult result = documentService.loadDocumentsFromDirectory(path, collectionName);
@@ -58,6 +63,9 @@ public class DocumentLoaderCommand {
         output.append(String.format("Collection:      %s\n", collectionName));
         if (title != null) {
             output.append(String.format("Title:           %s\n", title));
+        }
+        if (logo != null) {
+            output.append(String.format("Logo:            %s\n", logo));
         }
         output.append(String.format("Files processed: %d\n", result.getFilesProcessed()));
         output.append(String.format("Chunks created:  %d\n", result.getChunksCreated()));
@@ -71,7 +79,8 @@ public class DocumentLoaderCommand {
     public String loadDocumentsFromUrl(
             @ShellOption(help = "URL to a ZIP file containing HTML files") String url,
             @ShellOption(help = "Name of the ChromaDB collection to store documents") String collectionName,
-            @ShellOption(help = "Display title for this collection", defaultValue = ShellOption.NULL) String title) {
+            @ShellOption(help = "Display title for this collection", defaultValue = ShellOption.NULL) String title,
+            @ShellOption(help = "URL path to logo image for this collection", defaultValue = ShellOption.NULL) String logo) {
 
         Path tempDir = null;
         Path zipFile = null;
@@ -82,6 +91,10 @@ public class DocumentLoaderCommand {
             if (title != null) {
                 System.out.println("Collection title: " + title);
                 collectionMetadataService.setTitle(collectionName, title);
+            }
+            if (logo != null) {
+                System.out.println("Collection logo: " + logo);
+                collectionMetadataService.setLogo(collectionName, logo);
             }
 
             // Create temporary directory and file
@@ -138,6 +151,9 @@ public class DocumentLoaderCommand {
             output.append(String.format("Collection:      %s\n", collectionName));
             if (title != null) {
                 output.append(String.format("Title:           %s\n", title));
+            }
+            if (logo != null) {
+                output.append(String.format("Logo:            %s\n", logo));
             }
             output.append(String.format("Files processed: %d\n", result.getFilesProcessed()));
             output.append(String.format("Chunks created:  %d\n", result.getChunksCreated()));
@@ -217,6 +233,22 @@ public class DocumentLoaderCommand {
         return output.toString();
     }
 
+    @ShellMethod(key = "set-title", value = "Set the display title for a collection")
+    public String setTitle(
+            @ShellOption(help = "Name of the collection") String collectionName,
+            @ShellOption(help = "Display title for the frontend header") String title) {
+        collectionMetadataService.setTitle(collectionName, title);
+        return String.format("Title set for collection '%s': %s", collectionName, title);
+    }
+
+    @ShellMethod(key = "set-logo", value = "Set the logo URL for a collection")
+    public String setLogo(
+            @ShellOption(help = "Name of the collection") String collectionName,
+            @ShellOption(help = "URL path to logo image") String logo) {
+        collectionMetadataService.setLogo(collectionName, logo);
+        return String.format("Logo set for collection '%s': %s", collectionName, logo);
+    }
+
     @ShellMethod(key = "clear-docs", value = "Clear the document registry")
     public String clearDocuments() {
         documentService.clearDocuments();
@@ -229,15 +261,23 @@ public class DocumentLoaderCommand {
 
                 === Datamine Help CLI Commands ===
 
-                load-docs <path> <collection> [--title <title>]
+                load-docs <path> <collection> [--title <title>] [--logo <url>]
                     Load HTML documents from a directory into a ChromaDB collection.
                     Recursively finds all .html and .htm files.
                     Optional --title sets the display title for the frontend header.
+                    Optional --logo sets the logo image URL for the frontend header.
 
-                load-docs-url <url> <collection> [--title <title>]
+                load-docs-url <url> <collection> [--title <title>] [--logo <url>]
                     Download a ZIP file from URL and load documents into a collection.
                     Downloads, extracts, and processes HTML files.
                     Optional --title sets the display title for the frontend header.
+                    Optional --logo sets the logo image URL for the frontend header.
+
+                set-title <collection> <title>
+                    Set the display title for a collection's frontend header.
+
+                set-logo <collection> <logo-url>
+                    Set the logo image URL for a collection's frontend header.
 
                 list-docs
                     List all loaded documents with chunk counts.
@@ -248,8 +288,10 @@ public class DocumentLoaderCommand {
                 Examples:
                   load-docs ./docs my-collection
                   load-docs ./docs my-collection --title "My Product Help"
-                  load-docs C:\\Users\\docs\\help-files datamine-help --title "Datamine Help"
+                  load-docs ./docs my-collection --title "Help" --logo "https://example.com/logo.png"
                   load-docs-url https://example.com/docs.zip product-docs --title "Product Docs"
+                  set-title my-collection "My Product Documentation"
+                  set-logo my-collection "https://example.com/logo.png"
 
                 After loading documents, open http://localhost:8080 in your browser
                 to chat with the AI about your documents.

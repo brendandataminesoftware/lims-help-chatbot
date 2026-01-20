@@ -25,6 +25,9 @@ public class CollectionController {
         String title = collectionMetadataService.getTitle(collectionName);
         response.put("title", title);
 
+        String logo = collectionMetadataService.getLogo(collectionName);
+        response.put("logo", logo);
+
         return ResponseEntity.ok(response);
     }
 }

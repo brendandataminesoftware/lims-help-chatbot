@@ -25,11 +25,13 @@ public class CollectionMetadataService {
 
     public static class CollectionMetadata {
         private String title;
+        private String logo;
 
         public CollectionMetadata() {}
 
-        public CollectionMetadata(String title) {
+        public CollectionMetadata(String title, String logo) {
             this.title = title;
+            this.logo = logo;
         }
 
         public String getTitle() {
@@ -38,6 +40,14 @@ public class CollectionMetadataService {
 
         public void setTitle(String title) {
             this.title = title;
+        }
+
+        public String getLogo() {
+            return logo;
+        }
+
+        public void setLogo(String logo) {
+            this.logo = logo;
         }
     }
 
@@ -52,9 +62,20 @@ public class CollectionMetadataService {
         log.info("Set title for collection '{}': {}", collectionName, title);
     }
 
+    public void setLogo(String collectionName, String logo) {
+        metadata.computeIfAbsent(collectionName, k -> new CollectionMetadata()).setLogo(logo);
+        saveMetadata();
+        log.info("Set logo for collection '{}': {}", collectionName, logo);
+    }
+
     public String getTitle(String collectionName) {
         CollectionMetadata meta = metadata.get(collectionName);
         return meta != null ? meta.getTitle() : null;
+    }
+
+    public String getLogo(String collectionName) {
+        CollectionMetadata meta = metadata.get(collectionName);
+        return meta != null ? meta.getLogo() : null;
     }
 
     public CollectionMetadata getMetadata(String collectionName) {
