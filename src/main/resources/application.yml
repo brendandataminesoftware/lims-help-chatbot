@@ -45,3 +45,4 @@ rag:
   max-results: 5
   data-dir: ${RAG_DATA_DIR:./data}
   docs-base-url: ${DOCS_BASE_URL:https://docs.dataminesoftware.com/CCLAS-EL/Latest/}
+  metadata-file: ${RAG_METADATA_FILE:/docs/collection-metadata.json}

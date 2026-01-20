@@ -1,5 +1,6 @@
 package com.chatbot.service;
 
+import com.chatbot.config.RagConfig;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -18,10 +19,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CollectionMetadataService {
 
     private static final Logger log = LoggerFactory.getLogger(CollectionMetadataService.class);
-    private static final String METADATA_FILE = "collection-metadata.json";
 
+    private final RagConfig ragConfig;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final Map<String, CollectionMetadata> metadata = new ConcurrentHashMap<>();
+
+    public CollectionMetadataService(RagConfig ragConfig) {
+        this.ragConfig = ragConfig;
+    }
 
     public static class CollectionMetadata {
         private String title;
@@ -82,8 +87,12 @@ public class CollectionMetadataService {
         return loadMetadataFromFile().get(collectionName);
     }
 
+    private Path getMetadataPath() {
+        return Paths.get(ragConfig.getMetadataFile());
+    }
+
     private Map<String, CollectionMetadata> loadMetadataFromFile() {
-        Path path = Paths.get(METADATA_FILE);
+        Path path = getMetadataPath();
         if (Files.exists(path)) {
             try {
                 return objectMapper.readValue(
@@ -91,14 +100,14 @@ public class CollectionMetadataService {
                         new TypeReference<Map<String, CollectionMetadata>>() {}
                 );
             } catch (IOException e) {
-                log.warn("Failed to load collection metadata: {}", e.getMessage());
+                log.warn("Failed to load collection metadata from {}: {}", path, e.getMessage());
             }
         }
         return new ConcurrentHashMap<>();
     }
 
     private void loadMetadata() {
-        Path path = Paths.get(METADATA_FILE);
+        Path path = getMetadataPath();
         if (Files.exists(path)) {
             try {
                 Map<String, CollectionMetadata> loaded = objectMapper.readValue(
@@ -106,19 +115,22 @@ public class CollectionMetadataService {
                         new TypeReference<Map<String, CollectionMetadata>>() {}
                 );
                 metadata.putAll(loaded);
-                log.info("Loaded metadata for {} collections", metadata.size());
+                log.info("Loaded metadata for {} collections from {}", metadata.size(), path);
             } catch (IOException e) {
-                log.warn("Failed to load collection metadata: {}", e.getMessage());
+                log.warn("Failed to load collection metadata from {}: {}", path, e.getMessage());
             }
         }
     }
 
     private void saveMetadata() {
+        Path path = getMetadataPath();
         try {
+            // Ensure parent directory exists
+            Files.createDirectories(path.getParent());
             objectMapper.writerWithDefaultPrettyPrinter()
-                    .writeValue(Paths.get(METADATA_FILE).toFile(), metadata);
+                    .writeValue(path.toFile(), metadata);
         } catch (IOException e) {
-            log.error("Failed to save collection metadata: {}", e.getMessage());
+            log.error("Failed to save collection metadata to {}: {}", path, e.getMessage());
         }
     }
 }

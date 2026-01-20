@@ -12,6 +12,7 @@ public class RagConfig {
     private int maxResults = 5;
     private String dataDir = "./data";
     private String docsBaseUrl = "https://docs.dataminesoftware.com/CCLAS-EL/Latest/";
+    private String metadataFile = "/docs/collection-metadata.json";
 
     public int getChunkSize() {
         return chunkSize;
@@ -51,5 +52,13 @@ public class RagConfig {
 
     public void setDocsBaseUrl(String docsBaseUrl) {
         this.docsBaseUrl = docsBaseUrl;
+    }
+
+    public String getMetadataFile() {
+        return metadataFile;
+    }
+
+    public void setMetadataFile(String metadataFile) {
+        this.metadataFile = metadataFile;
     }
 }
