@@ -76,3 +76,7 @@ Key settings in `application.yml`:
 - `rag.chunk-size` - Document chunk size (default: 1000)
 - `rag.chunk-overlap` - Overlap between chunks (default: 200)
 - `rag.max-results` - Max documents to retrieve (default: 5)
+
+## Git Commit Preferences
+
+- Do NOT add Co-Authored-By lines to commit messages
