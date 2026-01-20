@@ -9,21 +9,17 @@ COPY mvnw pom.xml ./
 # Copy frontend package files for npm dependency caching
 COPY frontend/package.json frontend/package-lock.json ./frontend/
 
-# Download all dependencies (Maven + Node + npm) - cached unless pom.xml or package.json changes
+# Download Maven dependencies only (cached layer)
 RUN --mount=type=cache,target=/root/.m2/repository \
-    --mount=type=cache,target=/app/target/node \
-    --mount=type=cache,target=/app/frontend/node_modules \
-    ./mvnw dependency:go-offline \
-        frontend:install-node-and-npm -Dfrontend.nodeVersion=v20.18.0 -Dfrontend.npmVersion=10.8.2 \
-        frontend:npm -Dfrontend.arguments=install -B
+    ./mvnw dependency:go-offline -B
 
-# Copy frontend source (changes more often than dependencies)
+# Copy frontend source
 COPY frontend/ ./frontend/
 
 # Copy Java source
 COPY src ./src
 
-# Build the application (uses cached dependencies)
+# Build the application (frontend + Java) with caching
 RUN --mount=type=cache,target=/root/.m2/repository \
     --mount=type=cache,target=/app/target/node \
     ./mvnw package -DskipTests -B
