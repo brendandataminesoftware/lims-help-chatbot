@@ -48,7 +48,6 @@ function App() {
             <Header logo={logo} title={title} />
             <div className="app-container">
                 <Sidebar
-                    collection={urlCollection}
                     onNewChat={handleNewChat}
                     onOpenSettings={openDialog}
                 />
@@ -57,7 +56,6 @@ function App() {
                         messages={messages}
                         isLoading={isLoading}
                         error={error}
-                        collection={urlCollection}
                         onClearError={clearError}
                     />
                     <InputArea

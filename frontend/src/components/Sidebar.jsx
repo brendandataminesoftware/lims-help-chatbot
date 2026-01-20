@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function Sidebar({ collection, onNewChat, onOpenSettings }) {
+export function Sidebar({ onNewChat, onOpenSettings }) {
     return (
         <aside className="sidebar">
             <div className="sidebar-header">
@@ -12,11 +12,6 @@ export function Sidebar({ collection, onNewChat, onOpenSettings }) {
                     New Chat
                 </button>
             </div>
-            {collection && (
-                <div className="collection-indicator">
-                    <span className="accent">Collection:</span> {collection}
-                </div>
-            )}
             <div className="sidebar-content">
                 <div className="prompt-section no-border">
                     <button className="settings-btn" onClick={onOpenSettings}>

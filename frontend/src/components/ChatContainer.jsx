@@ -3,7 +3,7 @@ import { Message } from './Message';
 import { TypingIndicator } from './TypingIndicator';
 import { WelcomeMessage } from './WelcomeMessage';
 
-export function ChatContainer({ messages, isLoading, error, collection, onClearError }) {
+export function ChatContainer({ messages, isLoading, error, onClearError }) {
     const containerRef = useRef(null);
 
     useEffect(() => {
@@ -22,7 +22,7 @@ export function ChatContainer({ messages, isLoading, error, collection, onClearE
     return (
         <div className="chat-container" ref={containerRef}>
             {messages.length === 0 ? (
-                <WelcomeMessage collection={collection} />
+                <WelcomeMessage />
             ) : (
                 messages.map((message, index) => (
                     <Message

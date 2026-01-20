@@ -1,10 +1,10 @@
 import React from 'react';
 
-export function WelcomeMessage({ collection }) {
+export function WelcomeMessage() {
     return (
         <div className="welcome-message">
             <h1>Datamine Help</h1>
-            <p>{collection ? `Collection: ${collection}` : 'How can I help you today?'}</p>
+            <p>How can I help you today?</p>
         </div>
     );
 }

@@ -28,7 +28,7 @@ export function Message({ role, content, sources = [] }) {
                                         rel="noopener noreferrer"
                                         className="source-link"
                                     >
-                                        {source.title} <span className="relevance">({relevance}%)</span>
+                                        {source.title} <span className="relevance">{relevance}%)</span>
                                     </a>
                                 );
                             })}
