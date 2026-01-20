@@ -2,6 +2,7 @@ package com.chatbot.cli;
 
 import com.chatbot.model.DocumentInfo;
 import com.chatbot.model.LoadResult;
+import com.chatbot.service.CollectionMetadataService;
 import com.chatbot.service.DocumentService;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
@@ -26,21 +27,28 @@ import java.util.zip.ZipInputStream;
 public class DocumentLoaderCommand {
 
     private final DocumentService documentService;
+    private final CollectionMetadataService collectionMetadataService;
 
-    public DocumentLoaderCommand(DocumentService documentService) {
+    public DocumentLoaderCommand(DocumentService documentService, CollectionMetadataService collectionMetadataService) {
         this.documentService = documentService;
+        this.collectionMetadataService = collectionMetadataService;
     }
 
     @ShellMethod(key = "load-docs", value = "Load HTML documents from a directory into a vector store collection")
     public String loadDocuments(
             @ShellOption(help = "Path to directory containing HTML files") String path,
-            @ShellOption(help = "Name of the ChromaDB collection to store documents") String collectionName) {
+            @ShellOption(help = "Name of the ChromaDB collection to store documents") String collectionName,
+            @ShellOption(help = "Display title for this collection", defaultValue = ShellOption.NULL) String title) {
 
         System.out.println("Clearing existing documents...");
         documentService.clearDocuments();
 
         System.out.println("Loading documents from: " + path);
         System.out.println("Target collection: " + collectionName);
+        if (title != null) {
+            System.out.println("Collection title: " + title);
+            collectionMetadataService.setTitle(collectionName, title);
+        }
         System.out.println("This may take a while depending on the number and size of files...\n");
 
         LoadResult result = documentService.loadDocumentsFromDirectory(path, collectionName);
@@ -48,6 +56,9 @@ public class DocumentLoaderCommand {
         StringBuilder output = new StringBuilder();
         output.append("\n=== Document Loading Complete ===\n");
         output.append(String.format("Collection:      %s\n", collectionName));
+        if (title != null) {
+            output.append(String.format("Title:           %s\n", title));
+        }
         output.append(String.format("Files processed: %d\n", result.getFilesProcessed()));
         output.append(String.format("Chunks created:  %d\n", result.getChunksCreated()));
         output.append(String.format("Errors:          %d\n", result.getErrors()));
@@ -59,7 +70,8 @@ public class DocumentLoaderCommand {
     @ShellMethod(key = "load-docs-url", value = "Download a ZIP file from URL and load HTML documents into a vector store collection")
     public String loadDocumentsFromUrl(
             @ShellOption(help = "URL to a ZIP file containing HTML files") String url,
-            @ShellOption(help = "Name of the ChromaDB collection to store documents") String collectionName) {
+            @ShellOption(help = "Name of the ChromaDB collection to store documents") String collectionName,
+            @ShellOption(help = "Display title for this collection", defaultValue = ShellOption.NULL) String title) {
 
         Path tempDir = null;
         Path zipFile = null;
@@ -67,6 +79,10 @@ public class DocumentLoaderCommand {
         try {
             System.out.println("Downloading ZIP file from: " + url);
             System.out.println("Target collection: " + collectionName);
+            if (title != null) {
+                System.out.println("Collection title: " + title);
+                collectionMetadataService.setTitle(collectionName, title);
+            }
 
             // Create temporary directory and file
             tempDir = Files.createTempDirectory("rag-docs-");
@@ -120,6 +136,9 @@ public class DocumentLoaderCommand {
             StringBuilder output = new StringBuilder();
             output.append("\n=== Document Loading Complete ===\n");
             output.append(String.format("Collection:      %s\n", collectionName));
+            if (title != null) {
+                output.append(String.format("Title:           %s\n", title));
+            }
             output.append(String.format("Files processed: %d\n", result.getFilesProcessed()));
             output.append(String.format("Chunks created:  %d\n", result.getChunksCreated()));
             output.append(String.format("Errors:          %d\n", result.getErrors()));
@@ -210,13 +229,15 @@ public class DocumentLoaderCommand {
 
                 === Datamine Help CLI Commands ===
 
-                load-docs <path> <collection>
+                load-docs <path> <collection> [--title <title>]
                     Load HTML documents from a directory into a ChromaDB collection.
                     Recursively finds all .html and .htm files.
+                    Optional --title sets the display title for the frontend header.
 
-                load-docs-url <url> <collection>
+                load-docs-url <url> <collection> [--title <title>]
                     Download a ZIP file from URL and load documents into a collection.
                     Downloads, extracts, and processes HTML files.
+                    Optional --title sets the display title for the frontend header.
 
                 list-docs
                     List all loaded documents with chunk counts.
@@ -226,8 +247,9 @@ public class DocumentLoaderCommand {
 
                 Examples:
                   load-docs ./docs my-collection
-                  load-docs C:\\Users\\docs\\help-files datamine-help
-                  load-docs-url https://example.com/docs.zip product-docs
+                  load-docs ./docs my-collection --title "My Product Help"
+                  load-docs C:\\Users\\docs\\help-files datamine-help --title "Datamine Help"
+                  load-docs-url https://example.com/docs.zip product-docs --title "Product Docs"
 
                 After loading documents, open http://localhost:8080 in your browser
                 to chat with the AI about your documents.

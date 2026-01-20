@@ -10,6 +10,28 @@ function getCollectionFromUrl() {
     return hash || null;
 }
 
+// Load collection metadata and update header
+async function loadCollectionMetadata(collectionName) {
+    if (!collectionName) {
+        document.getElementById('header-title').textContent = 'Product Documentation';
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/collections/${encodeURIComponent(collectionName)}/metadata`);
+        if (response.ok) {
+            const data = await response.json();
+            if (data.title) {
+                document.getElementById('header-title').textContent = data.title;
+            } else {
+                document.getElementById('header-title').textContent = 'Product Documentation';
+            }
+        }
+    } catch (error) {
+        console.error('Error loading collection metadata:', error);
+    }
+}
+
 // Update the UI to show current collection
 function updateCollectionDisplay() {
     const collection = getCollectionFromUrl();
@@ -17,6 +39,9 @@ function updateCollectionDisplay() {
 
     const titleElement = document.querySelector('.welcome-message h1');
     const headerElement = document.querySelector('.sidebar-header');
+
+    // Load collection metadata to update header title
+    loadCollectionMetadata(collection);
 
     if (collection) {
         document.title = `Datamine Help - ${collection}`;
