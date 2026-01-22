@@ -5,34 +5,33 @@ export function useChat(resolvedCollection, systemPrompt, initialMessages = [], 
     const [messages, setMessages] = useState(initialMessages);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
-    const isInitialMount = useRef(true);
+    const onMessagesChangeRef = useRef(onMessagesChange);
 
-    // Sync messages from conversation when it changes
+    // Keep ref updated
     useEffect(() => {
-        setMessages(initialMessages);
+        onMessagesChangeRef.current = onMessagesChange;
+    }, [onMessagesChange]);
+
+    // Sync messages from conversation when it changes (compare by reference)
+    const prevInitialRef = useRef(initialMessages);
+    useEffect(() => {
+        if (prevInitialRef.current !== initialMessages) {
+            setMessages(initialMessages);
+            prevInitialRef.current = initialMessages;
+        }
     }, [initialMessages]);
-
-    // Notify parent when messages change (but not on initial mount)
-    useEffect(() => {
-        if (isInitialMount.current) {
-            isInitialMount.current = false;
-            return;
-        }
-        if (onMessagesChange) {
-            onMessagesChange(messages);
-        }
-    }, [messages, onMessagesChange]);
 
     const sendMessage = useCallback(async (content) => {
         if (!content.trim() || isLoading) return;
 
         const userMessage = { role: 'user', content };
-        setMessages(prev => [...prev, userMessage]);
+        const updatedMessages = [...messages, userMessage];
+        setMessages(updatedMessages);
         setIsLoading(true);
         setError(null);
 
         try {
-            const history = [...messages, userMessage].map(m => ({
+            const history = updatedMessages.map(m => ({
                 role: m.role,
                 content: m.content
             }));
@@ -51,7 +50,13 @@ export function useChat(resolvedCollection, systemPrompt, initialMessages = [], 
                 sources: data.sources || []
             };
 
-            setMessages(prev => [...prev, assistantMessage]);
+            const finalMessages = [...updatedMessages, assistantMessage];
+            setMessages(finalMessages);
+
+            // Save only after complete exchange
+            if (onMessagesChangeRef.current) {
+                onMessagesChangeRef.current(finalMessages);
+            }
         } catch (err) {
             console.error('Error:', err);
             setError('Failed to get response. Please check that the server is running and try again.');
@@ -63,6 +68,9 @@ export function useChat(resolvedCollection, systemPrompt, initialMessages = [], 
     const clearChat = useCallback(() => {
         setMessages([]);
         setError(null);
+        if (onMessagesChangeRef.current) {
+            onMessagesChangeRef.current([]);
+        }
     }, []);
 
     const clearError = useCallback(() => {
