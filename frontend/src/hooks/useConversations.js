@@ -1,15 +1,33 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 const API_BASE = '/api/conversations';
+const SAVE_DEBOUNCE_MS = 1000;
 
 export function useConversations() {
     const [conversations, setConversations] = useState([]);
     const [activeId, setActiveId] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const saveTimeoutRef = useRef(null);
+    const pendingSaveRef = useRef(null);
 
     // Load conversations from API on mount
     useEffect(() => {
         loadConversations();
+
+        // Cleanup: flush pending save on unmount
+        return () => {
+            if (saveTimeoutRef.current) {
+                clearTimeout(saveTimeoutRef.current);
+            }
+            // Flush any pending save synchronously
+            const save = pendingSaveRef.current;
+            if (save) {
+                navigator.sendBeacon(
+                    `${API_BASE}/${save.id}`,
+                    new Blob([JSON.stringify({ messagesJson: JSON.stringify(save.messages) })], { type: 'application/json' })
+                );
+            }
+        };
     }, []);
 
     const loadConversations = async () => {
@@ -99,7 +117,7 @@ export function useConversations() {
         }
     }, [activeId]);
 
-    const updateMessages = useCallback(async (messages) => {
+    const updateMessages = useCallback((messages) => {
         if (!activeId) return;
 
         // Update local state immediately for responsiveness
@@ -111,16 +129,28 @@ export function useConversations() {
             return conv;
         }));
 
-        // Persist to backend
-        try {
-            await fetch(`${API_BASE}/${activeId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ messagesJson: JSON.stringify(messages) })
-            });
-        } catch (error) {
-            console.error('Failed to update conversation:', error);
+        // Debounce the API call to prevent flooding
+        pendingSaveRef.current = { id: activeId, messages };
+
+        if (saveTimeoutRef.current) {
+            clearTimeout(saveTimeoutRef.current);
         }
+
+        saveTimeoutRef.current = setTimeout(async () => {
+            const save = pendingSaveRef.current;
+            if (!save) return;
+
+            try {
+                await fetch(`${API_BASE}/${save.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messagesJson: JSON.stringify(save.messages) })
+                });
+            } catch (error) {
+                console.error('Failed to update conversation:', error);
+            }
+            pendingSaveRef.current = null;
+        }, SAVE_DEBOUNCE_MS);
     }, [activeId]);
 
     const clearCurrentChat = useCallback(() => {
