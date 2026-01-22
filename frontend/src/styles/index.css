@@ -794,9 +794,8 @@ body {
 
 /* Copy button */
 .copy-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
+    flex-shrink: 0;
+    align-self: flex-start;
     background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
     border-radius: 6px;
@@ -805,6 +804,7 @@ body {
     color: var(--text-secondary);
     opacity: 0;
     transition: opacity 0.2s, background-color 0.2s, color 0.2s;
+    margin-left: 12px;
 }
 
 .message:hover .copy-btn {
@@ -819,10 +819,6 @@ body {
 .copy-btn.copied {
     color: #22c55e;
     opacity: 1;
-}
-
-.message-content {
-    position: relative;
 }
 
 /* Follow-up questions */
