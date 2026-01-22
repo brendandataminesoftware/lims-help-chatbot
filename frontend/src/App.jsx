@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { ChatContainer } from './components/ChatContainer';
@@ -26,6 +26,10 @@ function App() {
     );
 
     const inputRef = useRef(null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+    const closeSidebar = () => setIsSidebarOpen(false);
 
     // Clear chat when collection changes
     useEffect(() => {
@@ -45,11 +49,13 @@ function App() {
 
     return (
         <>
-            <Header logo={logo} title={title} />
+            <Header logo={logo} title={title} isSidebarOpen={isSidebarOpen} onToggleSidebar={toggleSidebar} />
             <div className="app-container">
                 <Sidebar
                     onNewChat={handleNewChat}
                     onOpenSettings={openDialog}
+                    isOpen={isSidebarOpen}
+                    onClose={closeSidebar}
                 />
                 <main className="main-content">
                     <ChatContainer

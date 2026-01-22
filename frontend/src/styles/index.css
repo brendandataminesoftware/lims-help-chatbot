@@ -609,18 +609,423 @@ body {
     margin-right: auto;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .sidebar {
-        display: none;
+/* Hamburger Button */
+.hamburger-btn {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 8px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    gap: 5px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.hamburger-btn:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.hamburger-line {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background-color: var(--text-primary);
+    border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.hamburger-btn.open .hamburger-line:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.hamburger-btn.open .hamburger-line:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-btn.open .hamburger-line:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Sidebar Overlay (mobile only) */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 90;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Responsive - Tablet */
+@media (max-width: 1024px) {
+    .message {
+        padding: 20px;
     }
 
+    .welcome-message {
+        padding: 40px 20px;
+    }
+
+    .welcome-message h1 {
+        font-size: 28px;
+    }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 768px) {
+    /* Show hamburger button */
+    .hamburger-btn {
+        display: flex;
+    }
+
+    /* Header adjustments */
+    .site-header {
+        padding: 12px 16px;
+        height: 64px;
+        gap: 12px;
+    }
+
+    .header-logo {
+        height: 40px;
+    }
+
+    .header-title {
+        font-size: 18px;
+    }
+
+    /* App container */
+    .app-container {
+        height: calc(100vh - 64px);
+    }
+
+    /* Sidebar as slide-out drawer */
+    .sidebar {
+        position: fixed;
+        top: 64px;
+        left: 0;
+        bottom: 0;
+        width: 280px;
+        z-index: 100;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: 2px 0 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    /* Show and animate overlay */
+    .sidebar-overlay {
+        display: block;
+        top: 64px;
+    }
+
+    .sidebar-overlay.open {
+        opacity: 1;
+    }
+
+    /* Message adjustments */
     .message {
         padding: 16px;
     }
 
+    .message-content {
+        gap: 12px;
+    }
+
+    .avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+
+    /* Welcome message */
+    .welcome-message {
+        padding: 40px 16px;
+    }
+
+    .welcome-message h1 {
+        font-size: 24px;
+    }
+
+    .welcome-message p {
+        font-size: 14px;
+    }
+
+    /* Input area */
     .input-area {
         padding: 12px 16px 16px;
+    }
+
+    .input-container {
+        padding: 10px 12px;
+    }
+
+    .message-input {
+        font-size: 16px; /* Prevents iOS zoom on focus */
+    }
+
+    /* Dialog */
+    .dialog {
+        max-width: 100%;
+        max-height: 90vh;
+        margin: 16px;
+        border-radius: 12px;
+    }
+
+    .dialog-header {
+        padding: 16px;
+    }
+
+    .dialog-body {
+        padding: 16px;
+    }
+
+    .dialog-footer {
+        padding: 12px 16px;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        flex: 1;
+        min-width: 100px;
+    }
+
+    /* Error message */
+    .error-message {
+        margin: 12px 16px;
+    }
+
+    .disclaimer {
+        font-size: 11px;
+        padding: 0 8px;
+    }
+}
+
+/* Responsive - Small Mobile */
+@media (max-width: 480px) {
+    .site-header {
+        padding: 10px 12px;
+        height: 56px;
+        gap: 8px;
+    }
+
+    .hamburger-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .header-logo {
+        height: 32px;
+    }
+
+    .header-title {
+        font-size: 16px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 180px;
+    }
+
+    .app-container {
+        height: calc(100vh - 56px);
+    }
+
+    .sidebar {
+        top: 56px;
+        width: 260px;
+    }
+
+    .sidebar-overlay {
+        top: 56px;
+    }
+
+    .message {
+        padding: 12px;
+    }
+
+    .message-content {
+        gap: 10px;
+    }
+
+    .avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+    }
+
+    .welcome-message {
+        padding: 32px 12px;
+    }
+
+    .welcome-message h1 {
+        font-size: 22px;
+    }
+
+    .input-area {
+        padding: 8px 12px 12px;
+    }
+
+    .input-container {
+        padding: 8px 10px;
+        border-radius: 10px;
+    }
+
+    .send-btn {
+        padding: 6px;
+    }
+
+    /* Table responsive */
+    .message-text .markdown-table {
+        font-size: 12px;
+    }
+
+    .message-text .markdown-table th,
+    .message-text .markdown-table td {
+        padding: 8px 10px;
+    }
+
+    /* Code blocks */
+    .message-text pre {
+        padding: 12px;
+        font-size: 13px;
+    }
+
+    .message-text code {
+        font-size: 13px;
+    }
+}
+
+/* Responsive - Extra Small Mobile */
+@media (max-width: 360px) {
+    .header-title {
+        font-size: 14px;
+        max-width: 140px;
+    }
+
+    .welcome-message h1 {
+        font-size: 20px;
+    }
+
+    .welcome-message p {
+        font-size: 13px;
+    }
+
+    .message {
+        padding: 10px;
+    }
+
+    .message-text {
+        font-size: 14px;
+    }
+}
+
+/* Touch Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Larger touch targets */
+    .new-chat-btn,
+    .settings-btn {
+        min-height: 48px;
+    }
+
+    .send-btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .dialog-close {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 10px;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        min-height: 48px;
+        padding: 12px 24px;
+    }
+
+    /* Remove hover states on touch devices */
+    .new-chat-btn:hover,
+    .settings-btn:hover,
+    .send-btn:hover,
+    .btn-primary:hover,
+    .btn-secondary:hover {
+        background-color: inherit;
+    }
+
+    .new-chat-btn:active {
+        background-color: var(--bg-tertiary);
+    }
+
+    .send-btn:active {
+        background-color: var(--accent-hover);
+    }
+
+    .btn-primary:active {
+        background-color: var(--accent-hover);
+    }
+
+    /* Prevent text selection on interactive elements */
+    button,
+    .sidebar-overlay {
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    /* Smooth scrolling on touch */
+    .chat-container,
+    .sidebar-content {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+}
+
+/* Prevent pull-to-refresh on mobile */
+body {
+    overscroll-behavior-y: contain;
+}
+
+/* Ensure inputs don't zoom on iOS */
+input,
+textarea,
+select {
+    font-size: 16px;
+}
+
+/* Safe area insets for notched devices */
+@supports (padding: max(0px)) {
+    .site-header {
+        padding-left: max(16px, env(safe-area-inset-left));
+        padding-right: max(16px, env(safe-area-inset-right));
+    }
+
+    .input-area {
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+
+    @media (max-width: 768px) {
+        .site-header {
+            padding-left: max(12px, env(safe-area-inset-left));
+            padding-right: max(12px, env(safe-area-inset-right));
+        }
+
+        .input-area {
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+        }
     }
 }
 
@@ -640,4 +1045,12 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--text-secondary);
+}
+
+/* Hide scrollbar on mobile for cleaner look */
+@media (max-width: 768px) {
+    .chat-container::-webkit-scrollbar,
+    .sidebar-content::-webkit-scrollbar {
+        width: 4px;
+    }
 }
