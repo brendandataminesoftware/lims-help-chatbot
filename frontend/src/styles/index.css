@@ -595,7 +595,7 @@ body {
 .message-text h5,
 .message-text h6 {
     margin-top: 16px;
-    margin-bottom: 6px;
+    margin-bottom: 1.5em;
     font-weight: 700;
     line-height: 1.25;
     color: var(--text-primary);
@@ -637,17 +637,21 @@ body {
 /* Lists */
 .message-text ul {
     margin: 0;
-    padding-left: 72px;
+    padding-left: 50px;
 }
 
 .message-text ol {
     margin: 0;
-    padding-left: 84px;
+    padding-left: 50px;
 }
 
 .message-text li {
     margin: 2px 0;
     line-height: 1.55;
+}
+
+.message-text ol li {
+    padding-left: 8px;
 }
 
 .message-text li > ul,
