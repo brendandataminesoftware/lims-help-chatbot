@@ -1,117 +1,126 @@
 import { useState, useCallback, useEffect } from 'react';
 
-const STORAGE_KEY = 'chat_conversations';
-
-function generateId() {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
-}
-
-function getConversationTitle(messages) {
-    if (messages.length === 0) return 'New Chat';
-    const firstUserMessage = messages.find(m => m.role === 'user');
-    if (!firstUserMessage) return 'New Chat';
-    const title = firstUserMessage.content.slice(0, 40);
-    return title.length < firstUserMessage.content.length ? title + '...' : title;
-}
-
-function loadFromStorage() {
-    try {
-        const data = localStorage.getItem(STORAGE_KEY);
-        if (data) {
-            return JSON.parse(data);
-        }
-    } catch (e) {
-        console.error('Failed to load conversations from storage:', e);
-    }
-    return null;
-}
-
-function saveToStorage(conversations, activeId) {
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ conversations, activeId }));
-    } catch (e) {
-        console.error('Failed to save conversations to storage:', e);
-    }
-}
+const API_BASE = '/api/conversations';
 
 export function useConversations() {
-    const [conversations, setConversations] = useState(() => {
-        const stored = loadFromStorage();
-        if (stored?.conversations?.length > 0) {
-            return stored.conversations;
-        }
-        return [{ id: generateId(), title: 'New Chat', messages: [], createdAt: Date.now() }];
-    });
+    const [conversations, setConversations] = useState([]);
+    const [activeId, setActiveId] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const [activeId, setActiveId] = useState(() => {
-        const stored = loadFromStorage();
-        if (stored?.activeId && stored.conversations?.find(c => c.id === stored.activeId)) {
-            return stored.activeId;
-        }
-        return conversations[0]?.id;
-    });
-
-    // Save to localStorage whenever conversations or activeId changes
+    // Load conversations from API on mount
     useEffect(() => {
-        saveToStorage(conversations, activeId);
-    }, [conversations, activeId]);
+        loadConversations();
+    }, []);
+
+    const loadConversations = async () => {
+        try {
+            setIsLoading(true);
+            const response = await fetch(API_BASE);
+            if (response.ok) {
+                const data = await response.json();
+                const mapped = data.map(conv => ({
+                    id: conv.id,
+                    title: conv.title,
+                    messages: JSON.parse(conv.messagesJson || '[]'),
+                    createdAt: conv.createdAt
+                }));
+                setConversations(mapped);
+
+                // Set active to first conversation, or create one if empty
+                if (mapped.length > 0) {
+                    if (!activeId || !mapped.find(c => c.id === activeId)) {
+                        setActiveId(mapped[0].id);
+                    }
+                } else {
+                    // Create initial conversation
+                    await createConversationInternal();
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load conversations:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const createConversationInternal = async () => {
+        try {
+            const response = await fetch(API_BASE, { method: 'POST' });
+            if (response.ok) {
+                const conv = await response.json();
+                const mapped = {
+                    id: conv.id,
+                    title: conv.title,
+                    messages: JSON.parse(conv.messagesJson || '[]'),
+                    createdAt: conv.createdAt
+                };
+                setConversations(prev => [mapped, ...prev]);
+                setActiveId(conv.id);
+                return conv.id;
+            }
+        } catch (error) {
+            console.error('Failed to create conversation:', error);
+        }
+        return null;
+    };
 
     const activeConversation = conversations.find(c => c.id === activeId) || conversations[0];
 
-    const createConversation = useCallback(() => {
-        const newConversation = {
-            id: generateId(),
-            title: 'New Chat',
-            messages: [],
-            createdAt: Date.now()
-        };
-        setConversations(prev => [newConversation, ...prev]);
-        setActiveId(newConversation.id);
-        return newConversation.id;
+    const createConversation = useCallback(async () => {
+        return await createConversationInternal();
     }, []);
 
     const selectConversation = useCallback((id) => {
         setActiveId(id);
     }, []);
 
-    const deleteConversation = useCallback((id) => {
-        setConversations(prev => {
-            const filtered = prev.filter(c => c.id !== id);
-            if (filtered.length === 0) {
-                const newConversation = {
-                    id: generateId(),
-                    title: 'New Chat',
-                    messages: [],
-                    createdAt: Date.now()
-                };
-                return [newConversation];
-            }
-            return filtered;
-        });
+    const deleteConversation = useCallback(async (id) => {
+        try {
+            const response = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+            if (response.ok) {
+                setConversations(prev => {
+                    const filtered = prev.filter(c => c.id !== id);
 
-        // If deleting active conversation, switch to another
-        if (activeId === id) {
-            setConversations(prev => {
-                const remaining = prev.filter(c => c.id !== id);
-                if (remaining.length > 0) {
-                    setActiveId(remaining[0].id);
-                }
-                return prev;
-            });
+                    // If deleting active conversation, switch to another or create new
+                    if (activeId === id) {
+                        if (filtered.length > 0) {
+                            setActiveId(filtered[0].id);
+                        } else {
+                            // Create a new conversation
+                            createConversationInternal();
+                        }
+                    }
+
+                    return filtered;
+                });
+            }
+        } catch (error) {
+            console.error('Failed to delete conversation:', error);
         }
     }, [activeId]);
 
-    const updateMessages = useCallback((messages) => {
+    const updateMessages = useCallback(async (messages) => {
+        if (!activeId) return;
+
+        // Update local state immediately for responsiveness
         setConversations(prev => prev.map(conv => {
             if (conv.id === activeId) {
-                return {
-                    ...conv,
-                    messages,
-                    title: getConversationTitle(messages)
-                };
+                const title = getConversationTitle(messages);
+                return { ...conv, messages, title };
             }
             return conv;
         }));
+
+        // Persist to backend
+        try {
+            await fetch(`${API_BASE}/${activeId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messagesJson: JSON.stringify(messages) })
+            });
+        } catch (error) {
+            console.error('Failed to update conversation:', error);
+        }
     }, [activeId]);
 
     const clearCurrentChat = useCallback(() => {
@@ -122,10 +131,19 @@ export function useConversations() {
         conversations,
         activeConversation,
         activeId,
+        isLoading,
         createConversation,
         selectConversation,
         deleteConversation,
         updateMessages,
         clearCurrentChat
     };
+}
+
+function getConversationTitle(messages) {
+    if (messages.length === 0) return 'New Chat';
+    const firstUserMessage = messages.find(m => m.role === 'user');
+    if (!firstUserMessage) return 'New Chat';
+    const title = firstUserMessage.content.slice(0, 40);
+    return title.length < firstUserMessage.content.length ? title + '...' : title;
 }
