@@ -44,7 +44,8 @@ export function useChat(resolvedCollection, systemPrompt, initialMessages = [], 
             const assistantMessage = {
                 role: 'assistant',
                 content: data.message,
-                sources: data.sources || []
+                sources: data.sources || [],
+                followUps: data.followUps || []
             };
 
             const finalMessages = [...updatedMessages, assistantMessage];

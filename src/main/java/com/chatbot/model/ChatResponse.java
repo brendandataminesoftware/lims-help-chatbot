@@ -6,13 +6,15 @@ public class ChatResponse {
 
     private String message;
     private List<Source> sources;
+    private List<String> followUps;
     private long processingTimeMs;
 
     public ChatResponse() {}
 
-    public ChatResponse(String message, List<Source> sources, long processingTimeMs) {
+    public ChatResponse(String message, List<Source> sources, List<String> followUps, long processingTimeMs) {
         this.message = message;
         this.sources = sources;
+        this.followUps = followUps;
         this.processingTimeMs = processingTimeMs;
     }
 
@@ -32,6 +34,14 @@ public class ChatResponse {
         this.sources = sources;
     }
 
+    public List<String> getFollowUps() {
+        return followUps;
+    }
+
+    public void setFollowUps(List<String> followUps) {
+        this.followUps = followUps;
+    }
+
     public long getProcessingTimeMs() {
         return processingTimeMs;
     }
@@ -47,6 +57,7 @@ public class ChatResponse {
     public static class Builder {
         private String message;
         private List<Source> sources;
+        private List<String> followUps;
         private long processingTimeMs;
 
         public Builder message(String message) {
@@ -59,13 +70,18 @@ public class ChatResponse {
             return this;
         }
 
+        public Builder followUps(List<String> followUps) {
+            this.followUps = followUps;
+            return this;
+        }
+
         public Builder processingTimeMs(long processingTimeMs) {
             this.processingTimeMs = processingTimeMs;
             return this;
         }
 
         public ChatResponse build() {
-            return new ChatResponse(message, sources, processingTimeMs);
+            return new ChatResponse(message, sources, followUps, processingTimeMs);
         }
     }
 }

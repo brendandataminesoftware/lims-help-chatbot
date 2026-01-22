@@ -3,7 +3,7 @@ import { Message } from './Message';
 import { TypingIndicator } from './TypingIndicator';
 import { WelcomeMessage } from './WelcomeMessage';
 
-export function ChatContainer({ messages, isLoading, error, onClearError }) {
+export function ChatContainer({ messages, isLoading, error, onClearError, onFollowUpClick }) {
     const containerRef = useRef(null);
 
     useEffect(() => {
@@ -19,6 +19,10 @@ export function ChatContainer({ messages, isLoading, error, onClearError }) {
         }
     }, [error, onClearError]);
 
+    // Only show follow-ups on the last assistant message
+    const lastAssistantIndex = messages.reduce((last, msg, idx) =>
+        msg.role === 'assistant' ? idx : last, -1);
+
     return (
         <div className="chat-container" ref={containerRef}>
             {messages.length === 0 ? (
@@ -30,6 +34,8 @@ export function ChatContainer({ messages, isLoading, error, onClearError }) {
                         role={message.role}
                         content={message.content}
                         sources={message.sources}
+                        followUps={index === lastAssistantIndex && !isLoading ? message.followUps : []}
+                        onFollowUpClick={onFollowUpClick}
                     />
                 ))
             )}

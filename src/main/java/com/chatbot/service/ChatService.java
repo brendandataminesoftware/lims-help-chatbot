@@ -146,11 +146,49 @@ public class ChatService {
 
         log.debug("Chat response generated in {}ms using {} sources", processingTime, sources.size());
 
+        // Generate follow-up questions
+        List<String> followUps = generateFollowUpQuestions(request.getMessage(), response);
+
         return ChatResponse.builder()
                 .message(response)
                 .sources(sources)
+                .followUps(followUps)
                 .processingTimeMs(processingTime)
                 .build();
+    }
+
+    private List<String> generateFollowUpQuestions(String userQuestion, String assistantResponse) {
+        try {
+            String followUpPrompt = """
+                Based on this Q&A exchange, suggest exactly 3 brief follow-up questions the user might want to ask next.
+                Return ONLY the questions, one per line, without numbering or bullets.
+                Keep each question under 60 characters.
+
+                User asked: %s
+
+                Assistant answered: %s
+                """.formatted(userQuestion, assistantResponse.length() > 500 ? assistantResponse.substring(0, 500) + "..." : assistantResponse);
+
+            ChatClient chatClient = chatClientBuilder.build();
+            String result = chatClient.prompt()
+                    .user(followUpPrompt)
+                    .call()
+                    .content();
+
+            if (result == null || result.isBlank()) {
+                return List.of();
+            }
+
+            return result.lines()
+                    .map(String::trim)
+                    .filter(line -> !line.isBlank())
+                    .filter(line -> !line.matches("^[0-9]+[.)].*")) // Remove any numbered lines
+                    .limit(3)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.warn("Failed to generate follow-up questions: {}", e.getMessage());
+            return List.of();
+        }
     }
 
     public Flux<String> chatStream(ChatRequest request) {

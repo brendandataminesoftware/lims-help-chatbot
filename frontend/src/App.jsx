@@ -85,6 +85,7 @@ function App() {
                         isLoading={isLoading}
                         error={error}
                         onClearError={clearError}
+                        onFollowUpClick={sendMessage}
                     />
                     <InputArea
                         onSendMessage={sendMessage}
