@@ -637,12 +637,12 @@ body {
 /* Lists */
 .message-text ul {
     margin: 0;
-    padding-left: 24px;
+    padding-left: 72px;
 }
 
 .message-text ol {
     margin: 0;
-    padding-left: 28px;
+    padding-left: 84px;
 }
 
 .message-text li {
