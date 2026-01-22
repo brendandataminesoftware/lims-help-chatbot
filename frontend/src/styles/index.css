@@ -31,6 +31,8 @@
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 15px;
+    letter-spacing: -0.01em;
     background-color: var(--bg-primary);
     color: var(--text-primary);
     height: 100vh;
@@ -543,8 +545,7 @@ body {
 }
 
 .message-text {
-    line-height: 1.6;
-    white-space: pre-wrap;
+    line-height: 1.55;
 }
 
 .message.assistant .message-text {
@@ -565,16 +566,16 @@ body {
 }
 
 .message-text code {
-    background-color: var(--bg-secondary);
-    padding: 2px 6px;
-    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 2px 5px;
+    border-radius: 3px;
     font-family: 'Consolas', 'Monaco', monospace;
-    font-size: 14px;
+    font-size: 0.9em;
 }
 
 .message-text pre {
-    background-color: var(--bg-secondary);
-    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 10px 12px;
     border-radius: 6px;
     overflow-x: auto;
     margin: 4px 0;
@@ -583,6 +584,7 @@ body {
 .message-text pre code {
     background: none;
     padding: 0;
+    font-size: 13px;
 }
 
 /* Headings in messages */
@@ -609,9 +611,7 @@ body {
 }
 
 .message-text h1 {
-    font-size: 1.3em;
-    padding-bottom: 2px;
-    border-bottom: 1px solid var(--border-color);
+    font-size: 1.25em;
 }
 
 .message-text h2 {
@@ -619,11 +619,11 @@ body {
 }
 
 .message-text h3 {
-    font-size: 1.1em;
+    font-size: 1.08em;
 }
 
 .message-text h4 {
-    font-size: 1.05em;
+    font-size: 1em;
 }
 
 .message-text h5,
