@@ -87,8 +87,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    width: 228px;
-    padding-right: 20px;
+    width: 260px;
+    padding-right: 12px;
     border-right: 1px solid var(--border-color);
     margin-right: 20px;
     height: 100%;
