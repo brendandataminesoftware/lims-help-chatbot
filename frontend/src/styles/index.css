@@ -507,7 +507,7 @@ body {
     background-color: var(--accent-color);
     padding: 12px 16px;
     border-radius: 12px;
-    max-width: 80%;
+    max-width: 90%;
 }
 
 .message.assistant {
@@ -635,12 +635,12 @@ body {
 /* Lists */
 .message-text ul {
     margin: 0;
-    padding-left: 18px;
+    padding-left: 24px;
 }
 
 .message-text ol {
     margin: 0;
-    padding-left: 24px;
+    padding-left: 28px;
 }
 
 .message-text li {
