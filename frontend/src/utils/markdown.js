@@ -1,97 +1,76 @@
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
+
+// Configure marked options
+marked.setOptions({
+    breaks: true,        // Convert \n to <br>
+    gfm: true,           // GitHub Flavored Markdown
+    headerIds: false,    // Don't add ids to headers
+    mangle: false,       // Don't mangle email addresses
+});
+
+// Custom renderer for code blocks with syntax highlighting class
+const renderer = new marked.Renderer();
+
+renderer.code = function(code, language) {
+    const langClass = language ? ` language-${language}` : '';
+    const codeText = typeof code === 'object' ? code.text : code;
+    const lang = typeof code === 'object' ? code.lang : language;
+    const actualLangClass = lang ? ` language-${lang}` : '';
+    return `<pre><code class="code-block${actualLangClass}">${escapeHtml(codeText)}</code></pre>`;
+};
+
+renderer.table = function(header, body) {
+    const headerContent = typeof header === 'object' ? header.header : header;
+    const bodyContent = typeof header === 'object' ? header.rows?.map(row =>
+        `<tr>${row.map(cell => `<td>${cell.text}</td>`).join('')}</tr>`
+    ).join('') : body;
+
+    if (typeof header === 'object') {
+        const headerRow = header.header?.map(cell => `<th>${cell.text}</th>`).join('') || '';
+        const rows = header.rows?.map(row =>
+            `<tr>${row.map(cell => `<td>${cell.text}</td>`).join('')}</tr>`
+        ).join('') || '';
+        return `<table class="markdown-table"><thead><tr class="table-header">${headerRow}</tr></thead><tbody>${rows}</tbody></table>`;
+    }
+    return `<table class="markdown-table"><thead>${headerContent}</thead><tbody>${bodyContent}</tbody></table>`;
+};
+
+marked.use({ renderer });
+
 export function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
 
-function convertTableToHtml(tableLines) {
-    if (tableLines.length < 2) return tableLines.join('\n');
-
-    let html = '<table class="markdown-table">';
-
-    for (let i = 0; i < tableLines.length; i++) {
-        const line = tableLines[i];
-
-        // Skip separator row (contains only |, -, :, and spaces)
-        if (/^\|[\s\-:|]+\|$/.test(line)) {
-            continue;
-        }
-
-        // Parse cells
-        const cells = line
-            .slice(1, -1)
-            .split('|')
-            .map(cell => cell.trim());
-
-        const tag = i === 0 ? 'th' : 'td';
-        const rowClass = i === 0 ? 'table-header' : '';
-
-        html += `<tr class="${rowClass}">`;
-        for (const cell of cells) {
-            html += `<${tag}>${cell}</${tag}>`;
-        }
-        html += '</tr>';
-    }
-
-    html += '</table>';
-    return html;
-}
-
-function parseMarkdownTables(text) {
-    const lines = text.split('\n');
-    let result = [];
-    let tableLines = [];
-    let inTable = false;
-
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i].trim();
-        const isTableRow = line.startsWith('|') && line.endsWith('|');
-
-        if (isTableRow) {
-            if (!inTable) {
-                inTable = true;
-                tableLines = [];
-            }
-            tableLines.push(line);
-        } else {
-            if (inTable) {
-                result.push(convertTableToHtml(tableLines));
-                tableLines = [];
-                inTable = false;
-            }
-            result.push(lines[i]);
-        }
-    }
-
-    if (inTable && tableLines.length > 0) {
-        result.push(convertTableToHtml(tableLines));
-    }
-
-    return result.join('\n');
-}
-
 export function formatMessage(text) {
-    // Escape HTML first
-    let formatted = escapeHtml(text);
+    if (!text) return '';
 
-    // Code blocks
-    formatted = formatted.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+    // Parse markdown to HTML using marked
+    const rawHtml = marked.parse(text);
 
-    // Inline code
-    formatted = formatted.replace(/`([^`]+)`/g, '<code>$1</code>');
+    // Sanitize the HTML to prevent XSS attacks
+    const cleanHtml = DOMPurify.sanitize(rawHtml, {
+        ALLOWED_TAGS: [
+            'p', 'br', 'strong', 'em', 'code', 'pre', 'blockquote',
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+            'ul', 'ol', 'li',
+            'a', 'img',
+            'table', 'thead', 'tbody', 'tr', 'th', 'td',
+            'hr', 'del', 's',
+            'sup', 'sub',
+            'span', 'div'
+        ],
+        ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'target', 'rel'],
+        ADD_ATTR: ['target'],
+    });
 
-    // Bold
-    formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    // Add target="_blank" to all links for security
+    const withSafeLinks = cleanHtml.replace(
+        /<a /g,
+        '<a target="_blank" rel="noopener noreferrer" '
+    );
 
-    // Italic
-    formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-
-    // Parse markdown tables
-    formatted = parseMarkdownTables(formatted);
-
-    // Line breaks to paragraphs
-    formatted = formatted.split('\n\n').map(p => `<p>${p}</p>`).join('');
-    formatted = formatted.replace(/\n/g, '<br>');
-
-    return formatted;
+    return withSafeLinks;
 }
