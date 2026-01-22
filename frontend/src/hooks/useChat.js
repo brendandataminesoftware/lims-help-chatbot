@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { sendChatMessage } from '../api/chat';
 
-export function useChat(resolvedCollection, systemPrompt, initialMessages = [], onMessagesChange) {
+export function useChat(resolvedCollection, systemPrompt, initialMessages = [], conversationId, onMessagesChange) {
     const [messages, setMessages] = useState(initialMessages);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -12,14 +12,11 @@ export function useChat(resolvedCollection, systemPrompt, initialMessages = [], 
         onMessagesChangeRef.current = onMessagesChange;
     }, [onMessagesChange]);
 
-    // Sync messages from conversation when it changes (compare by reference)
-    const prevInitialRef = useRef(initialMessages);
+    // Sync messages when conversation changes
     useEffect(() => {
-        if (prevInitialRef.current !== initialMessages) {
-            setMessages(initialMessages);
-            prevInitialRef.current = initialMessages;
-        }
-    }, [initialMessages]);
+        setMessages(initialMessages);
+        setError(null);
+    }, [conversationId]);
 
     const sendMessage = useCallback(async (content) => {
         if (!content.trim() || isLoading) return;

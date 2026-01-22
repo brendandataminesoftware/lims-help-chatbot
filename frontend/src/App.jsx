@@ -40,6 +40,7 @@ function App() {
         resolvedCollection,
         systemPrompt,
         activeConversation?.messages || [],
+        activeId,
         handleMessagesChange
     );
 
