@@ -27,9 +27,11 @@ function App() {
 
     const inputRef = useRef(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
     const closeSidebar = () => setIsSidebarOpen(false);
+    const toggleSidebarCollapse = () => setIsSidebarCollapsed(!isSidebarCollapsed);
 
     // Clear chat when collection changes
     useEffect(() => {
@@ -50,12 +52,14 @@ function App() {
     return (
         <>
             <Header logo={logo} title={title} isSidebarOpen={isSidebarOpen} onToggleSidebar={toggleSidebar} />
-            <div className="app-container">
+            <div className={`app-container ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
                 <Sidebar
                     onNewChat={handleNewChat}
                     onOpenSettings={openDialog}
                     isOpen={isSidebarOpen}
                     onClose={closeSidebar}
+                    isCollapsed={isSidebarCollapsed}
+                    onToggleCollapse={toggleSidebarCollapse}
                 />
                 <main className="main-content">
                     <ChatContainer

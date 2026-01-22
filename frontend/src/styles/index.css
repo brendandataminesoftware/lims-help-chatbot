@@ -144,6 +144,68 @@ body {
     color: var(--accent-color);
 }
 
+/* Sidebar Footer & Collapse Button */
+.sidebar-footer {
+    padding: 12px;
+    border-top: 1px solid var(--border-color);
+}
+
+.collapse-btn {
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.collapse-btn:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+/* Sidebar Collapsed State (desktop only) */
+@media (min-width: 769px) {
+    .sidebar {
+        transition: width 0.2s ease;
+    }
+
+    .sidebar.collapsed {
+        width: 64px;
+    }
+
+    .sidebar.collapsed .sidebar-header,
+    .sidebar.collapsed .sidebar-content,
+    .sidebar.collapsed .sidebar-footer {
+        padding: 8px;
+    }
+
+    .sidebar.collapsed .new-chat-btn,
+    .sidebar.collapsed .settings-btn,
+    .sidebar.collapsed .collapse-btn {
+        justify-content: center;
+        padding: 12px;
+    }
+
+    .sidebar.collapsed .new-chat-btn svg,
+    .sidebar.collapsed .settings-btn svg {
+        flex-shrink: 0;
+    }
+
+    .sidebar.collapsed .btn-text {
+        display: none;
+    }
+
+    .main-content {
+        transition: margin-left 0.2s ease;
+    }
+}
+
 /* Dialog Overlay */
 .dialog-overlay {
     display: none;
@@ -687,6 +749,16 @@ body {
     /* Show hamburger button */
     .hamburger-btn {
         display: flex;
+    }
+
+    /* Hide collapse button on mobile */
+    .sidebar-footer {
+        display: none;
+    }
+
+    /* Reset collapsed state on mobile */
+    .sidebar.collapsed {
+        width: 280px;
     }
 
     /* Header adjustments */
