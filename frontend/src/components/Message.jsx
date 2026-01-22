@@ -5,8 +5,6 @@ const MIN_RELEVANCE = 0.8;
 
 export function Message({ role, content, sources = [], followUps = [], onFollowUpClick }) {
     const [copied, setCopied] = useState(false);
-    const avatar = role === 'user' ? 'You' : 'Alfred';
-    const avatarClass = role === 'user' ? 'user' : 'assistant';
 
     const filteredSources = sources.filter(s => s.score >= MIN_RELEVANCE);
 
@@ -23,7 +21,6 @@ export function Message({ role, content, sources = [], followUps = [], onFollowU
     return (
         <div className={`message ${role}`}>
             <div className="message-content">
-                <div className={`avatar ${avatarClass}`}>{avatar}</div>
                 <div className="message-text">
                     <div dangerouslySetInnerHTML={{ __html: formatMessage(content) }} />
                     {filteredSources.length > 0 && (
