@@ -650,7 +650,8 @@ body {
     line-height: 1.55;
 }
 
-.message-text ol li {
+.message-text ol li,
+.message-text ul li {
     padding-left: 8px;
 }
 
