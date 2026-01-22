@@ -496,11 +496,22 @@ body {
 }
 
 .message.user {
-    background-color: var(--user-bubble);
+    background-color: transparent;
+}
+
+.message.user .message-content {
+    justify-content: flex-end;
+}
+
+.message.user .message-text {
+    background-color: var(--accent-color);
+    padding: 12px 16px;
+    border-radius: 12px;
+    max-width: 80%;
 }
 
 .message.assistant {
-    background-color: var(--assistant-bubble);
+    background-color: transparent;
 }
 
 .message-content {
@@ -532,9 +543,12 @@ body {
 }
 
 .message-text {
-    flex: 1;
     line-height: 1.6;
     white-space: pre-wrap;
+}
+
+.message.assistant .message-text {
+    flex: 1;
 }
 
 .message-text p {
