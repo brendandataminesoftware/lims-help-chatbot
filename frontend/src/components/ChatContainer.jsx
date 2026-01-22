@@ -3,7 +3,7 @@ import { Message } from './Message';
 import { TypingIndicator } from './TypingIndicator';
 import { WelcomeMessage } from './WelcomeMessage';
 
-export function ChatContainer({ messages, isLoading, error, onClearError, onFollowUpClick }) {
+export function ChatContainer({ messages, isLoading, error, onClearError, onFollowUpClick, logo }) {
     const containerRef = useRef(null);
 
     useEffect(() => {
@@ -26,7 +26,7 @@ export function ChatContainer({ messages, isLoading, error, onClearError, onFoll
     return (
         <div className="chat-container" ref={containerRef}>
             {messages.length === 0 ? (
-                <WelcomeMessage />
+                <WelcomeMessage logo={logo} />
             ) : (
                 messages.map((message, index) => (
                     <Message

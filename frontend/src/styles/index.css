@@ -90,7 +90,7 @@ body {
 }
 
 .header-logo {
-    height: 48px;
+    height: 32px;
     width: auto;
 }
 
@@ -508,6 +508,12 @@ body {
 .welcome-message {
     text-align: center;
     padding: 60px 24px;
+}
+
+.welcome-logo {
+    height: 80px;
+    width: auto;
+    margin-bottom: 24px;
 }
 
 .welcome-message h1 {

@@ -86,6 +86,7 @@ function App() {
                         error={error}
                         onClearError={clearError}
                         onFollowUpClick={sendMessage}
+                        logo={logo}
                     />
                     <InputArea
                         onSendMessage={sendMessage}
