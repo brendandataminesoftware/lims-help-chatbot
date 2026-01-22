@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { ChatContainer } from './components/ChatContainer';
@@ -7,6 +7,7 @@ import { SystemPromptDialog } from './components/SystemPromptDialog';
 import { useCollection } from './hooks/useCollection';
 import { useChat } from './hooks/useChat';
 import { useSystemPrompt } from './hooks/useSystemPrompt';
+import { useConversations } from './hooks/useConversations';
 
 function App() {
     const { urlCollection, resolvedCollection, title, logo } = useCollection();
@@ -20,9 +21,26 @@ function App() {
         savePrompt,
         resetPrompt
     } = useSystemPrompt();
+
+    const {
+        conversations,
+        activeConversation,
+        activeId,
+        createConversation,
+        selectConversation,
+        deleteConversation,
+        updateMessages
+    } = useConversations();
+
+    const handleMessagesChange = useCallback((messages) => {
+        updateMessages(messages);
+    }, [updateMessages]);
+
     const { messages, isLoading, error, sendMessage, clearChat, clearError } = useChat(
         resolvedCollection,
-        systemPrompt
+        systemPrompt,
+        activeConversation?.messages || [],
+        handleMessagesChange
     );
 
     const inputRef = useRef(null);
@@ -33,11 +51,6 @@ function App() {
     const closeSidebar = () => setIsSidebarOpen(false);
     const toggleSidebarCollapse = () => setIsSidebarCollapsed(!isSidebarCollapsed);
 
-    // Clear chat when collection changes
-    useEffect(() => {
-        clearChat();
-    }, [urlCollection, clearChat]);
-
     // Focus input on mount
     useEffect(() => {
         if (inputRef.current) {
@@ -46,7 +59,7 @@ function App() {
     }, []);
 
     const handleNewChat = () => {
-        clearChat();
+        createConversation();
     };
 
     return (
@@ -60,6 +73,10 @@ function App() {
                     onClose={closeSidebar}
                     isCollapsed={isSidebarCollapsed}
                     onToggleCollapse={toggleSidebarCollapse}
+                    conversations={conversations}
+                    activeConversationId={activeId}
+                    onSelectConversation={selectConversation}
+                    onDeleteConversation={deleteConversation}
                 />
                 <main className="main-content">
                     <ChatContainer

@@ -1,6 +1,17 @@
 import React from 'react';
 
-export function Sidebar({ onNewChat, onOpenSettings, isOpen, onClose, isCollapsed, onToggleCollapse }) {
+export function Sidebar({
+    onNewChat,
+    onOpenSettings,
+    isOpen,
+    onClose,
+    isCollapsed,
+    onToggleCollapse,
+    conversations,
+    activeConversationId,
+    onSelectConversation,
+    onDeleteConversation
+}) {
     const handleNewChat = () => {
         onNewChat();
         onClose();
@@ -9,6 +20,16 @@ export function Sidebar({ onNewChat, onOpenSettings, isOpen, onClose, isCollapse
     const handleOpenSettings = () => {
         onOpenSettings();
         onClose();
+    };
+
+    const handleSelectConversation = (id) => {
+        onSelectConversation(id);
+        onClose();
+    };
+
+    const handleDeleteConversation = (e, id) => {
+        e.stopPropagation();
+        onDeleteConversation(id);
     };
 
     return (
@@ -33,7 +54,47 @@ export function Sidebar({ onNewChat, onOpenSettings, isOpen, onClose, isCollapse
                     </button>
                 </div>
                 <div className="sidebar-content">
-                    <div className="prompt-section no-border">
+                    {!isCollapsed && conversations && conversations.length > 0 && (
+                        <div className="conversation-list">
+                            {conversations.map(conv => (
+                                <div
+                                    key={conv.id}
+                                    className={`conversation-item ${conv.id === activeConversationId ? 'active' : ''}`}
+                                    onClick={() => handleSelectConversation(conv.id)}
+                                    title={conv.title}
+                                >
+                                    <svg className="conversation-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                    </svg>
+                                    <span className="conversation-title">{conv.title}</span>
+                                    <button
+                                        className="conversation-delete"
+                                        onClick={(e) => handleDeleteConversation(e, conv.id)}
+                                        title="Delete conversation"
+                                        aria-label="Delete conversation"
+                                    >
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    {isCollapsed && (
+                        <div className="collapsed-conversations">
+                            <button
+                                className="collapsed-conv-btn"
+                                title="Conversations"
+                            >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    )}
+                    <div className="prompt-section">
                         <button
                             className="settings-btn"
                             onClick={handleOpenSettings}

@@ -1,10 +1,27 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { sendChatMessage } from '../api/chat';
 
-export function useChat(resolvedCollection, systemPrompt) {
-    const [messages, setMessages] = useState([]);
+export function useChat(resolvedCollection, systemPrompt, initialMessages = [], onMessagesChange) {
+    const [messages, setMessages] = useState(initialMessages);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    const isInitialMount = useRef(true);
+
+    // Sync messages from conversation when it changes
+    useEffect(() => {
+        setMessages(initialMessages);
+    }, [initialMessages]);
+
+    // Notify parent when messages change (but not on initial mount)
+    useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+            return;
+        }
+        if (onMessagesChange) {
+            onMessagesChange(messages);
+        }
+    }, [messages, onMessagesChange]);
 
     const sendMessage = useCallback(async (content) => {
         if (!content.trim() || isLoading) return;
