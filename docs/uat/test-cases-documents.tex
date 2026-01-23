@@ -1,0 +1,111 @@
+\section{Test Cases: Document Management}
+
+\subsection{Document Loading}
+
+\begin{longtable}{|L{1.5cm}|L{4cm}|L{4cm}|L{3cm}|C{1.5cm}|}
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endhead
+
+TC-D01 & Load HTML documentation via API endpoint & Documents are parsed, chunked, and stored in vector database & & \pending \\
+\hline
+
+TC-D02 & Load documentation via CLI command & Documents loaded successfully with confirmation message & & \pending \\
+\hline
+
+TC-D03 & Load documents from invalid path & Appropriate error message returned & & \pending \\
+\hline
+
+TC-D04 & Load empty directory & System handles gracefully with appropriate message & & \pending \\
+\hline
+
+TC-D05 & Load non-HTML files & Non-HTML files are skipped or handled appropriately & & \pending \\
+\hline
+
+TC-D06 & Load large documentation set (100+ files) & All documents processed successfully & & \pending \\
+\hline
+
+\caption{Document Loading Test Cases}
+\end{longtable}
+
+\subsection{Document Viewing}
+
+\begin{longtable}{|L{1.5cm}|L{4cm}|L{4cm}|L{3cm}|C{1.5cm}|}
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endhead
+
+TC-D07 & List loaded documents via API & Returns list of all loaded documents with metadata & & \pending \\
+\hline
+
+TC-D08 & View document count & Accurate count of loaded documents displayed & & \pending \\
+\hline
+
+\caption{Document Viewing Test Cases}
+\end{longtable}
+
+\subsection{Document Clearing}
+
+\begin{longtable}{|L{1.5cm}|L{4cm}|L{4cm}|L{3cm}|C{1.5cm}|}
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endhead
+
+TC-D09 & Clear all documents via API & All documents removed from registry and vector store & & \pending \\
+\hline
+
+TC-D10 & Verify chat behavior after clearing documents & Chat indicates no documents available for context & & \pending \\
+\hline
+
+TC-D11 & Reload documents after clearing & Documents load successfully into clean state & & \pending \\
+\hline
+
+\caption{Document Clearing Test Cases}
+\end{longtable}
+
+\subsection{Collection Management}
+
+\begin{longtable}{|L{1.5cm}|L{4cm}|L{4cm}|L{3cm}|C{1.5cm}|}
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endhead
+
+TC-D12 & Load documents into named collection & Documents stored in specified collection & & \pending \\
+\hline
+
+TC-D13 & Switch between collections via URL parameter & Chat uses correct collection for context retrieval & & \pending \\
+\hline
+
+TC-D14 & Query documents from specific collection & Only documents from specified collection returned & & \pending \\
+\hline
+
+\caption{Collection Management Test Cases}
+\end{longtable}

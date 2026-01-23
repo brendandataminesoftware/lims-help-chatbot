@@ -1,0 +1,51 @@
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+% Page geometry
+\geometry{margin=2.5cm}
+
+% Colors
+\definecolor{passgreen}{RGB}{76, 175, 80}
+\definecolor{failred}{RGB}{244, 67, 54}
+\definecolor{pendingblue}{RGB}{33, 150, 243}
+\definecolor{headerblue}{RGB}{25, 118, 210}
+
+% Header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{RAG Chatbot UAT Documentation}
+\fancyhead[R]{\today}
+\fancyfoot[C]{Page \thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=headerblue,
+    urlcolor=headerblue
+}
+
+% Custom column types
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+% Test result commands
+\newcommand{\pass}{\textcolor{passgreen}{\textbf{PASS}}}
+\newcommand{\fail}{\textcolor{failred}{\textbf{FAIL}}}
+\newcommand{\pending}{\textcolor{pendingblue}{\textbf{PENDING}}}
+
+% Test case environment
+\newcounter{testcase}
+\newcommand{\testcase}[1]{\refstepcounter{testcase}\textbf{TC-\thetestcase:} #1}

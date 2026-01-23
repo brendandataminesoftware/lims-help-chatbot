@@ -1,0 +1,37 @@
+\section{Introduction}
+
+\subsection{Purpose}
+This document outlines the User Acceptance Testing (UAT) procedures for the RAG (Retrieval-Augmented Generation) Chatbot application. The chatbot provides AI-powered assistance for Datamine documentation, enabling users to ask questions and receive contextually relevant answers based on the loaded documentation.
+
+\subsection{Scope}
+The UAT covers the following functional areas:
+\begin{itemize}
+    \item Chat functionality and AI response generation
+    \item Document management (loading, viewing, clearing)
+    \item Conversation management (create, select, delete)
+    \item User interface and user experience
+    \item System settings and configuration
+\end{itemize}
+
+\subsection{Objectives}
+\begin{enumerate}
+    \item Verify that the chatbot accurately retrieves and presents information from loaded documentation
+    \item Confirm that conversation history is properly maintained and persisted
+    \item Ensure the user interface is intuitive and responsive
+    \item Validate that all API endpoints function correctly
+    \item Verify system stability under normal usage conditions
+\end{enumerate}
+
+\subsection{References}
+\begin{itemize}
+    \item Application URL: \url{http://localhost:8080}
+    \item API Documentation: \texttt{/api/chat}, \texttt{/api/documents}, \texttt{/api/conversations}
+    \item Source Repository: Internal Git repository
+\end{itemize}
+
+\subsection{Document Conventions}
+\begin{itemize}
+    \item \pass{} -- Test case passed successfully
+    \item \fail{} -- Test case failed
+    \item \pending{} -- Test case not yet executed
+\end{itemize}

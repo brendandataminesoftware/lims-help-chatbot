@@ -1,0 +1,41 @@
+\section{Test Environment}
+
+\subsection{Prerequisites}
+Before conducting UAT, ensure the following components are properly configured:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Component} & \textbf{Requirement} & \textbf{Status} \\
+\midrule
+Docker & Running with ChromaDB container & \pending \\
+OpenAI API Key & Valid key configured & \pending \\
+Application Server & Running on port 8080 & \pending \\
+Documentation & HTML files loaded into vector store & \pending \\
+Web Browser & Chrome, Firefox, or Edge (latest) & \pending \\
+\bottomrule
+\end{tabular}
+\caption{Environment Prerequisites Checklist}
+\end{table}
+
+\subsection{Test Data}
+The following test data should be available:
+
+\begin{itemize}
+    \item \textbf{Documentation Set}: CCLAS-EL Online Help HTML files
+    \item \textbf{Sample Questions}: Prepared list of questions with known answers from documentation
+    \item \textbf{Edge Cases}: Questions outside the scope of loaded documentation
+\end{itemize}
+
+\subsection{Environment Setup Steps}
+\begin{enumerate}
+    \item Start ChromaDB: \texttt{docker-compose up -d}
+    \item Set OpenAI API key: \texttt{set OPENAI\_API\_KEY=<key>}
+    \item Start application: \texttt{./mvnw.cmd spring-boot:run}
+    \item Load documentation via API or CLI
+    \item Verify application is accessible at \url{http://localhost:8080}
+\end{enumerate}
+
+\subsection{Test Accounts}
+No user authentication is required for this application. All testers can access the system directly via the web interface.

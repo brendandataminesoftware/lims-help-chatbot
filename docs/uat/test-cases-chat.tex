@@ -1,0 +1,97 @@
+\section{Test Cases: Chat Functionality}
+
+\subsection{Basic Chat Operations}
+
+\begin{longtable}{|L{1.5cm}|L{4cm}|L{4cm}|L{3cm}|C{1.5cm}|}
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endhead
+
+TC-C01 & Send a simple question about loaded documentation & Bot responds with relevant information from documentation & & \pending \\
+\hline
+
+TC-C02 & Send a follow-up question referencing previous context & Bot maintains context and provides coherent follow-up response & & \pending \\
+\hline
+
+TC-C03 & Ask a question not covered in documentation & Bot indicates it cannot find relevant information or provides general response & & \pending \\
+\hline
+
+TC-C04 & Send an empty message & Message is not sent; input validation prevents submission & & \pending \\
+\hline
+
+TC-C05 & Send a very long message (>1000 characters) & Message is accepted and processed correctly & & \pending \\
+\hline
+
+TC-C06 & Send message using Enter key & Message is submitted successfully & & \pending \\
+\hline
+
+TC-C07 & Send message using Send button & Message is submitted successfully & & \pending \\
+\hline
+
+TC-C08 & Use Shift+Enter for new line & New line is inserted without sending message & & \pending \\
+\hline
+
+\caption{Basic Chat Operations Test Cases}
+\end{longtable}
+
+\subsection{Response Quality}
+
+\begin{longtable}{|L{1.5cm}|L{4cm}|L{4cm}|L{3cm}|C{1.5cm}|}
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endhead
+
+TC-C09 & Verify response accuracy against source documentation & Response content matches source documentation & & \pending \\
+\hline
+
+TC-C10 & Check response formatting (markdown rendering) & Markdown elements (lists, code, links) render correctly & & \pending \\
+\hline
+
+TC-C11 & Verify response includes relevant context & Response references appropriate sections of documentation & & \pending \\
+\hline
+
+TC-C12 & Test response time under normal load & Response received within acceptable timeframe (<30 seconds) & & \pending \\
+\hline
+
+\caption{Response Quality Test Cases}
+\end{longtable}
+
+\subsection{Error Handling}
+
+\begin{longtable}{|L{1.5cm}|L{4cm}|L{4cm}|L{3cm}|C{1.5cm}|}
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endhead
+
+TC-C13 & Send message when API is unavailable & User-friendly error message displayed & & \pending \\
+\hline
+
+TC-C14 & Send message when no documents loaded & Bot responds appropriately indicating no documentation available & & \pending \\
+\hline
+
+TC-C15 & Dismiss error message & Error message can be closed by user & & \pending \\
+\hline
+
+\caption{Error Handling Test Cases}
+\end{longtable}

@@ -1,0 +1,114 @@
+\section{Test Cases: Conversation Management}
+
+\subsection{Conversation Creation}
+
+\begin{longtable}{|L{1.5cm}|L{4cm}|L{4cm}|L{3cm}|C{1.5cm}|}
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endhead
+
+TC-V01 & Click "New Chat" button & New empty conversation created and selected & & \pending \\
+\hline
+
+TC-V02 & Load page with no existing conversations & New conversation automatically created & & \pending \\
+\hline
+
+TC-V03 & Load page with existing empty conversation & Existing empty conversation reused (no new chat created) & & \pending \\
+\hline
+
+TC-V04 & Load page with existing conversation containing messages & New empty conversation created & & \pending \\
+\hline
+
+TC-V05 & Verify conversation title updates after first message & Title reflects first user message content & & \pending \\
+\hline
+
+\caption{Conversation Creation Test Cases}
+\end{longtable}
+
+\subsection{Conversation Selection}
+
+\begin{longtable}{|L{1.5cm}|L{4cm}|L{4cm}|L{3cm}|C{1.5cm}|}
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endhead
+
+TC-V06 & Click on conversation in sidebar & Conversation selected and messages displayed & & \pending \\
+\hline
+
+TC-V07 & Switch between multiple conversations & Each conversation displays its own message history & & \pending \\
+\hline
+
+TC-V08 & Verify active conversation highlighting & Selected conversation visually highlighted in sidebar & & \pending \\
+\hline
+
+\caption{Conversation Selection Test Cases}
+\end{longtable}
+
+\subsection{Conversation Deletion}
+
+\begin{longtable}{|L{1.5cm}|L{4cm}|L{4cm}|L{3cm}|C{1.5cm}|}
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endhead
+
+TC-V09 & Delete conversation via delete button & Conversation removed from list & & \pending \\
+\hline
+
+TC-V10 & Delete active conversation & Next conversation selected automatically & & \pending \\
+\hline
+
+TC-V11 & Delete last remaining conversation & New empty conversation created automatically & & \pending \\
+\hline
+
+TC-V12 & Verify deleted conversation not recoverable & Conversation data permanently removed & & \pending \\
+\hline
+
+\caption{Conversation Deletion Test Cases}
+\end{longtable}
+
+\subsection{Conversation Persistence}
+
+\begin{longtable}{|L{1.5cm}|L{4cm}|L{4cm}|L{3cm}|C{1.5cm}|}
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{headerblue!20}
+\textbf{ID} & \textbf{Test Case} & \textbf{Expected Result} & \textbf{Actual Result} & \textbf{Status} \\
+\hline
+\endhead
+
+TC-V13 & Refresh page after sending messages & Conversation history preserved & & \pending \\
+\hline
+
+TC-V14 & Close and reopen browser & Conversations persist across sessions & & \pending \\
+\hline
+
+TC-V15 & Send multiple messages rapidly & All messages saved correctly & & \pending \\
+\hline
+
+\caption{Conversation Persistence Test Cases}
+\end{longtable}
