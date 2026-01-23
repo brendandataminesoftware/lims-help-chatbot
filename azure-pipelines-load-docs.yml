@@ -1,0 +1,57 @@
+trigger: none
+
+parameters:
+  - name: sshServiceConnection
+    displayName: 'SSH Service Connection Name'
+    type: string
+  - name: containerName
+    displayName: 'Docker Container Name'
+    type: string
+    default: 'rag-chatbot'
+  - name: remoteUploadPath
+    displayName: 'Remote Upload Path on Server'
+    type: string
+    default: '/tmp/upload'
+  - name: containerDocsPath
+    displayName: 'Documents Path in Container'
+    type: string
+    default: '/upload/CCLAS-EL/CCLAS-EL-Online-Help-HTML5'
+  - name: collectionName
+    displayName: 'Collection Name'
+    type: string
+    default: 'cclas-el'
+
+resources:
+  pipelines:
+    - pipeline: docsPipeline
+      source: 'Your-Source-Pipeline-Name'  # Update with actual pipeline name
+      trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - download: docsPipeline
+    displayName: 'Download artifact from source pipeline'
+    artifact: 'docs'  # Update with actual artifact name
+
+  - task: CopyFilesOverSSH@0
+    displayName: 'Copy documents to remote server'
+    inputs:
+      sshEndpoint: '${{ parameters.sshServiceConnection }}'
+      sourceFolder: '$(Pipeline.Workspace)/docsPipeline/docs'
+      contents: '**'
+      targetFolder: '${{ parameters.remoteUploadPath }}'
+      cleanTargetFolder: true
+      overwrite: true
+
+  - task: SSH@0
+    displayName: 'Load documents via SSH'
+    inputs:
+      sshEndpoint: '${{ parameters.sshServiceConnection }}'
+      runOptions: 'commands'
+      commands: |
+        docker exec ${{ parameters.containerName }} \
+          java -Dserver.port=8081 -Dspring.shell.interactive.enabled=false \
+          -jar app.jar load-docs ${{ parameters.containerDocsPath }} ${{ parameters.collectionName }}
+      readyTimeout: '20000'

@@ -948,7 +948,7 @@ body {
     max-width: 800px;
     margin: 0 auto;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     gap: 12px;
     background-color: var(--bg-tertiary);
     border-radius: 12px;

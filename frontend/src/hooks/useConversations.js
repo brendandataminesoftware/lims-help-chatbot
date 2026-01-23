@@ -44,15 +44,8 @@ export function useConversations() {
                 }));
                 setConversations(mapped);
 
-                // Set active to first conversation, or create one if empty
-                if (mapped.length > 0) {
-                    if (!activeId || !mapped.find(c => c.id === activeId)) {
-                        setActiveId(mapped[0].id);
-                    }
-                } else {
-                    // Create initial conversation
-                    await createConversationInternal();
-                }
+                // Always start a new chat on page load
+                await createConversationInternal();
             }
         } catch (error) {
             console.error('Failed to load conversations:', error);
