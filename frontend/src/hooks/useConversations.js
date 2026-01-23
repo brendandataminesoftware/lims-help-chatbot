@@ -44,8 +44,13 @@ export function useConversations() {
                 }));
                 setConversations(mapped);
 
-                // Always start a new chat on page load
-                await createConversationInternal();
+                // Start a new chat only if there are no conversations or the most recent one has messages
+                if (mapped.length === 0 || mapped[0].messages.length > 0) {
+                    await createConversationInternal();
+                } else {
+                    // Reuse the existing empty conversation
+                    setActiveId(mapped[0].id);
+                }
             }
         } catch (error) {
             console.error('Failed to load conversations:', error);
